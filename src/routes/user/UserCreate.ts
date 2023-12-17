@@ -3,6 +3,7 @@ import { User } from "../../db/entities";
 import { DI } from "../../index";
 import z from "zod";
 import { hashPassword } from "../../utils/hashPassword";
+import { Product } from "../../db/entities/Product";
 
 export const UserCreateRequest = z
   .object({
@@ -35,7 +36,16 @@ export const userCreate = async (
 
     const hashedPassword = await hashPassword(password);
 
-    const user = em.create(User, { email, password: hashedPassword, username });
+    const defaultProduct = await em.findOne(Product, { name: "Free Trial" });
+
+    if (!defaultProduct) return res.sendStatus(500);
+
+    const user = em.create(User, {
+      email,
+      password: hashedPassword,
+      username,
+      product: defaultProduct,
+    });
 
     await em.flush();
 

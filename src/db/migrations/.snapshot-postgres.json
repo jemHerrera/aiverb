@@ -6,13 +6,22 @@
   "tables": [
     {
       "columns": {
-        "id": {
-          "name": "id",
+        "name": {
+          "name": "name",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "mappedType": "string"
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "mappedType": "string"
         },
         "created_at": {
@@ -34,51 +43,15 @@
           "nullable": false,
           "length": 0,
           "mappedType": "datetime"
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
-        },
-        "description": {
-          "name": "description",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
-        },
-        "price": {
-          "name": "price",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
         }
       },
       "name": "product",
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "name"
-          ],
-          "composite": false,
-          "keyName": "product_name_unique",
-          "primary": false,
-          "unique": true
-        },
-        {
           "keyName": "product_pkey",
           "columnNames": [
-            "id"
+            "name"
           ],
           "composite": false,
           "primary": true,
@@ -166,8 +139,8 @@
           "default": "false",
           "mappedType": "boolean"
         },
-        "product_id": {
-          "name": "product_id",
+        "product_name": {
+          "name": "product_name",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -209,14 +182,14 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "account_product_id_foreign": {
-          "constraintName": "account_product_id_foreign",
+        "account_product_name_foreign": {
+          "constraintName": "account_product_name_foreign",
           "columnNames": [
-            "product_id"
+            "product_name"
           ],
           "localTableName": "public.account",
           "referencedColumnNames": [
-            "id"
+            "name"
           ],
           "referencedTableName": "public.product",
           "updateRule": "cascade"

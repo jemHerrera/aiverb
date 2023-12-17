@@ -1,18 +1,33 @@
-import { Collection, Entity, OneToMany, Property } from "@mikro-orm/core";
-import { BaseEntity } from "./_lib/BaseEntity";
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  OptionalProps,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/core";
 import { User } from "./User";
 
 @Entity({ tableName: "product" })
-export class Product extends BaseEntity {
-  @Property({ unique: true })
+export abstract class Product {
+  [OptionalProps]?: "createdAt" | "updatedAt";
+
+  @PrimaryKey()
   name!: string;
 
-  @Property()
+  @Property({ nullable: true })
   description?: string;
 
   @OneToMany({ entity: () => User, mappedBy: "product" })
   users = new Collection<User>(this);
 
   @Property()
-  price!: Record<string, any>;
+  createdAt: Date = new Date();
+
+  @Property({ onUpdate: () => new Date() })
+  updatedAt: Date = new Date();
+
+  constructor(name: string) {
+    this.name = name;
+  }
 }
