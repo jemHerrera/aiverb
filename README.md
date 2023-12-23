@@ -2,20 +2,35 @@
 
 A Language model for language learning.
 
+Typescript - Express - PostgreSQL - Nuxt
+
 ## Setup
 
-1. Install [pnpm](https://pnpm.io/) on your local:
+1. This repo uses pnpm. Install [pnpm](https://pnpm.io/) on your local.
+2. Run `pnpm i`
 
-2. pnpm i
+## Run servers locally
 
-## Create db and pgAdmin containers
+`pnpm dev`
 
-`docker compose up`
+This will create the necessary docker containers and run:
 
-## MikroORM create migration files
+- postgres
+- pgAdmin
+- api server
+- nuxt server
 
-`npm run create-migration`
+## Run app specific scriptst
 
-## MikroORM migrate to DB
+With pnpm we can run app specific scripts from the root dir
 
-`npm run migrate`
+`pnpm api <script-name>`
+`pnpm nuxt <script-name>`
+
+## Create migration files
+
+`pnpm create-migration`
+
+## Migrate to DB
+
+`pnpm migrate`
