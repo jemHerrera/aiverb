@@ -4,7 +4,9 @@ A Language model for language learning.
 
 ## Setup
 
-`npm i`
+1. Install [pnpm](https://pnpm.io/) on your local:
+
+2. pnpm i
 
 ## Create db and pgAdmin containers
 

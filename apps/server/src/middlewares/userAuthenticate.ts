@@ -1,5 +1,4 @@
 import express from "express";
-import { ParamsDictionary } from "express-serve-static-core";
 import jwt from "jsonwebtoken";
 
 export type SessionTokenPayload = {
@@ -9,7 +8,7 @@ export type SessionTokenPayload = {
 };
 
 export interface AuthenticatedRequest<
-  P extends ParamsDictionary = {},
+  P = {},
   ResBody = {},
   ReqBody = {},
   Locals extends Record<string, any> = {}
