@@ -20,7 +20,7 @@ This will create the necessary docker containers and run:
 - api server
 - nuxt server
 
-## Run app specific scriptst
+## Run app specific scripts
 
 With pnpm we can run app specific scripts from the root dir
 
