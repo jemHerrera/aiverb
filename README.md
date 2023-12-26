@@ -13,19 +13,21 @@ Typescript - Express - PostgreSQL - Nuxt
 
 `pnpm dev`
 
-This will create the necessary docker containers and run:
+This will run:
 
 - postgres
 - pgAdmin
 - api server
 - nuxt server
 
+This will automatically create the database and pgAdmin docker containers
+
 ## Run app specific scripts
 
-With pnpm we can run app specific scripts from the root dir
+With pnpm we can run scripts from inside each app from the root directory:
 
-`pnpm api <script-name>`
-`pnpm nuxt <script-name>`
+`pnpm api <script-name>` Example: `pnpm api dev`, `pnpm api build`
+`pnpm nuxt <script-name>` Example: `pnpm nuxt dev`
 
 ## Create migration files
 

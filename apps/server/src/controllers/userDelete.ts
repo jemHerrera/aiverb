@@ -6,9 +6,12 @@ import { z } from "zod";
 
 export const UserDeleteRequest = z.object({ id: z.string() }).strict();
 
+export type UserDeleteRequest = z.infer<typeof UserDeleteRequest>;
+export type UserDeleteResponse = { deleted: true };
+
 export const userDelete = async (
-  req: AuthenticatedRequest<{}, {}, z.infer<typeof UserDeleteRequest>>,
-  res: express.Response<{ deleted: true }>
+  req: AuthenticatedRequest<{}, {}, UserDeleteRequest>,
+  res: express.Response<UserDeleteResponse>
 ) => {
   try {
     const { em } = DI;

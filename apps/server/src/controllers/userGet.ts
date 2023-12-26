@@ -3,9 +3,12 @@ import { DI } from "..";
 import { User } from "../db/entities";
 import { AuthenticatedRequest } from "../middlewares/userAuthenticate";
 
+export type UserGetOwnRequest = {};
+export type UserGetOwnResponse = Omit<User, "password">;
+
 export const userGetOwn = async (
   req: AuthenticatedRequest,
-  res: express.Response<Omit<User, "password">>
+  res: express.Response<UserGetOwnResponse>
 ) => {
   try {
     const { em } = DI;
@@ -27,9 +30,12 @@ export const userGetOwn = async (
   }
 };
 
+export type UserGetRequest = { id: string };
+export type UserGetResponse = Omit<User, "password">;
+
 export const userGet = async (
-  req: AuthenticatedRequest<{}, {}, { id: string }>,
-  res: express.Response<Omit<User, "password">>
+  req: AuthenticatedRequest<{}, {}, UserGetRequest>,
+  res: express.Response<UserGetResponse>
 ) => {
   try {
     const { em } = DI;

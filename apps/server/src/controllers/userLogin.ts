@@ -13,9 +13,12 @@ export const UserLoginRequest = z
   })
   .strict();
 
+export type UserLoginRequest = z.infer<typeof UserLoginRequest>;
+export type UserLoginResponse = { sessionToken: string };
+
 export const userLogin = async (
-  req: express.Request<{}, {}, z.infer<typeof UserLoginRequest>>,
-  res: express.Response<{ sessionToken: string }>
+  req: express.Request<{}, {}, UserLoginRequest>,
+  res: express.Response<UserLoginResponse>
 ) => {
   try {
     const { em } = DI;
@@ -38,7 +41,7 @@ export const userLogin = async (
         emailVerified: !!user.emailVerified,
       } as SessionTokenPayload,
       process.env.USER_JWT_PRIVATE_KEY || "",
-      { expiresIn: "4h" }
+      { expiresIn: "2d" }
     );
 
     res.status(200).json({ sessionToken }).end();

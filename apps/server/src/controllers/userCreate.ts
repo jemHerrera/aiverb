@@ -14,9 +14,12 @@ export const UserCreateRequest = z
   })
   .strict();
 
+export type UserCreateRequest = z.infer<typeof UserCreateRequest>;
+export type UserCreateResponse = Omit<User, "password">;
+
 export const userCreate = async (
-  req: express.Request<{}, {}, z.infer<typeof UserCreateRequest>>,
-  res: express.Response<Omit<User, "password">>
+  req: express.Request<{}, {}, UserCreateRequest>,
+  res: express.Response<UserCreateResponse>
 ) => {
   try {
     const { em } = DI;
@@ -45,7 +48,6 @@ export const userCreate = async (
 
     await em.flush();
 
-    // Remove password from the response
     const { password: p, ...successResponse } = user;
 
     return res.status(200).json(successResponse).end();

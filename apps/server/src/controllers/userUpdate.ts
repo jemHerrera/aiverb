@@ -18,9 +18,12 @@ export const UserUpdateOwnRequest = z
   })
   .strict();
 
+export type UserUpdateOwnRequest = z.infer<typeof UserUpdateOwnRequest>;
+export type UserUpdateOwnResponse = Omit<User, "password">;
+
 export const userUpdateOwn = async (
-  req: AuthenticatedRequest<{}, {}, z.infer<typeof UserUpdateOwnRequest>>,
-  res: express.Response<Omit<User, "password">>
+  req: AuthenticatedRequest<{}, {}, UserUpdateOwnRequest>,
+  res: express.Response<UserUpdateOwnResponse>
 ) => {
   try {
     const { em } = DI;
@@ -52,7 +55,6 @@ export const userUpdateOwn = async (
 
     await em.flush();
 
-    // Remove password from the response
     const { password: p, ...successResponse } = user;
 
     return res.status(200).json(successResponse).end();
@@ -72,9 +74,12 @@ export const UserUpdateRequest = z
   })
   .strict();
 
+export type UserUpdateRequest = z.infer<typeof UserUpdateRequest>;
+export type UserUpdateResponse = Omit<User, "password">;
+
 export const userUpdate = async (
-  req: AuthenticatedRequest<{}, {}, z.infer<typeof UserUpdateRequest>>,
-  res: express.Response<Omit<User, "password">>
+  req: AuthenticatedRequest<{}, {}, UserUpdateRequest>,
+  res: express.Response<UserUpdateResponse>
 ) => {
   try {
     const { em } = DI;

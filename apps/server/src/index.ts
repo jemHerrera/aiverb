@@ -21,7 +21,7 @@ export const init = (async () => {
   DI.orm = await MikroORM.init(mikroOrmConfig);
   DI.em = DI.orm.em;
 
-  app.use(cors({ credentials: true }));
+  app.use(cors());
   app.use(compression());
   app.use(cookieParser());
   app.use(bodyParser.json());

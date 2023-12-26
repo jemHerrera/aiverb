@@ -4,9 +4,15 @@ import { User } from "../db/entities";
 import { AuthenticatedRequest } from "../middlewares/userAuthenticate";
 import { DI } from "..";
 
+export type UserListRequest = { limit?: number; offset?: number };
+export type UserListResponse = {
+  users: Omit<User, "password">[];
+  total: number;
+};
+
 export const userList = async (
-  req: AuthenticatedRequest<{}, {}, { limit?: number; offset?: number }>,
-  res: express.Response<{ users: Omit<User, "password">[]; total: number }>
+  req: AuthenticatedRequest<{}, {}, UserListRequest>,
+  res: express.Response<UserListResponse>
 ) => {
   try {
     const { em } = DI;
