@@ -36,3 +36,5 @@ With pnpm we can run scripts from inside each app from the root directory:
 ## Migrate to DB
 
 `pnpm migrate`
+
+## Todo

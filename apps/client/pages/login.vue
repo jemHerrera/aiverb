@@ -30,14 +30,14 @@ const login = async (): Promise<void> => {
 
   sessionCookie.value = sessionToken;
 
-  await navigateTo("/chat");
+  await navigateTo("/");
 };
 </script>
 
 <template>
-  <h1>Login</h1>
-  <p v-if="error" style="color: red">Invalid email/password.</p>
   <div class="page-login">
+    <h1>Login</h1>
+    <p v-if="error" style="color: red">Invalid email/password.</p>
     <form @submit.prevent="login">
       <div class="form-item">
         <label for="email">Email: </label>
@@ -61,5 +61,6 @@ const login = async (): Promise<void> => {
       </div>
       <button type="submit">Submit</button>
     </form>
+    <p>Don't have account yet? <NuxtLink to="/register">Register</NuxtLink></p>
   </div>
 </template>

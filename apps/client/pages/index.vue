@@ -1,17 +1,11 @@
 <script setup lang="ts">
-import { navigateTo, useState } from "nuxt/app";
-import { watch } from "vue";
+import { useState } from "nuxt/app";
+import type server from "../server/types";
 
-const user = useState("user");
-
-watch(user, async (u) => {
-  if (u === null) await navigateTo("/login");
-  else await navigateTo("/chat");
-});
+const user = useState<server.UserGetOwnResponse | null>("user");
 </script>
 
 <template>
-  <h1>Homepage</h1>
-  <NuxtLink to="/register">Register</NuxtLink>
-  <NuxtLink to="/login">Login</NuxtLink>
+  <SideBar />
+  <h1>Homepage / Chat page</h1>
 </template>
