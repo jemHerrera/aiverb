@@ -8,9 +8,9 @@ import { userUpdate, userUpdateOwn } from "../controllers/userUpdate";
 import { userDelete } from "../controllers/userDelete";
 
 export default (router: express.Router) => {
-  router.post("/register", userCreate);
-  router.post("/login", userLogin);
-  router.post("/me", userAuthenticate, userGetOwn);
+  router.post("/auth/register", userCreate);
+  router.post("/auth/login", userLogin);
+  router.get("/me", userAuthenticate, userGetOwn);
   router.post("/user", userAuthenticate, userGet);
   router.post("/users", userAuthenticate, userList);
   router.post("/me/update", userAuthenticate, userUpdateOwn);

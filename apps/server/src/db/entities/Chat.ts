@@ -12,5 +12,5 @@ export class Chat extends BaseEntity {
   topic!: string;
 
   @Property()
-  messages!: Message[];
+  messages!: string[];
 }

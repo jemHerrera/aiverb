@@ -5,6 +5,7 @@ import argon2 from "argon2";
 import { AuthenticatedRequest } from "../middlewares/userAuthenticate";
 import { z } from "zod";
 import { ProductsSchema } from "../utils/types/Products";
+import { UserResponseData } from "../types";
 
 export const UserUpdateOwnRequest = z
   .object({
@@ -19,11 +20,10 @@ export const UserUpdateOwnRequest = z
   .strict();
 
 export type UserUpdateOwnRequest = z.infer<typeof UserUpdateOwnRequest>;
-export type UserUpdateOwnResponse = Omit<User, "password">;
 
 export const userUpdateOwn = async (
   req: AuthenticatedRequest<{}, {}, UserUpdateOwnRequest>,
-  res: express.Response<UserUpdateOwnResponse>
+  res: express.Response<UserResponseData>
 ) => {
   try {
     const { em } = DI;
@@ -36,7 +36,7 @@ export const userUpdateOwn = async (
 
     const { id } = req.user;
 
-    const user = await em.findOne(User, { id });
+    const user = await em.findOne(User, { id }, { populate: ["chats.id"] });
     if (!user) return res.sendStatus(500);
 
     const { password, isAdmin } = req.body;
@@ -55,7 +55,17 @@ export const userUpdateOwn = async (
 
     await em.flush();
 
-    const { password: p, ...successResponse } = user;
+    const successResponse: UserResponseData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      emailVerified: user.emailVerified || false,
+      isAdmin: user.isAdmin || false,
+      product: user.product.name,
+      chats: user.chats.getItems().map((c) => c.id),
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
 
     return res.status(200).json(successResponse).end();
   } catch (error) {
@@ -75,11 +85,10 @@ export const UserUpdateRequest = z
   .strict();
 
 export type UserUpdateRequest = z.infer<typeof UserUpdateRequest>;
-export type UserUpdateResponse = Omit<User, "password">;
 
 export const userUpdate = async (
   req: AuthenticatedRequest<{}, {}, UserUpdateRequest>,
-  res: express.Response<UserUpdateResponse>
+  res: express.Response<UserResponseData>
 ) => {
   try {
     const { em } = DI;
@@ -93,7 +102,7 @@ export const userUpdate = async (
     const { id, options } = req.body;
     const { isAdmin, product } = options;
 
-    const user = await em.findOne(User, { id });
+    const user = await em.findOne(User, { id }, { populate: ["chats.id"] });
     if (!user) return res.sendStatus(404);
 
     if (product) {
@@ -108,8 +117,17 @@ export const userUpdate = async (
 
     await em.flush();
 
-    // Remove password from the response
-    const { password: p, ...successResponse } = user;
+    const successResponse: UserResponseData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      emailVerified: user.emailVerified || false,
+      isAdmin: user.isAdmin || false,
+      product: user.product.name,
+      chats: user.chats.getItems().map((c) => c.id),
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
 
     return res.status(200).json(successResponse).end();
   } catch (error) {

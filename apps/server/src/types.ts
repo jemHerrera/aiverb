@@ -1,3 +1,5 @@
+export { Message } from "./utils/types/Message";
+export { UserResponseData } from "./utils/types/UserResponseData";
 export {
   UserCreateRequest,
   UserCreateResponse,
@@ -6,17 +8,12 @@ export {
   UserDeleteRequest,
   UserDeleteResponse,
 } from "./controllers/userDelete";
-export {
-  UserGetOwnRequest,
-  UserGetOwnResponse,
-  UserGetRequest,
-  UserGetResponse,
-} from "./controllers/userGet";
+export { UserGetRequest } from "./controllers/userGet";
 export { UserListRequest, UserListResponse } from "./controllers/userList";
 export { UserLoginRequest, UserLoginResponse } from "./controllers/userLogin";
 export {
   UserUpdateRequest,
   UserUpdateOwnRequest,
-  UserUpdateResponse,
-  UserUpdateOwnResponse,
 } from "./controllers/userUpdate";
+export { ChatSendRequest, ChatSendResponse } from "./controllers/chatSend";
+export { ChatGetOwnRequest, ChatGetOwnResponse } from "./controllers/chatGet";

@@ -1,12 +1,12 @@
 import express from "express";
-import { z } from "zod";
 import { User } from "../db/entities";
 import { AuthenticatedRequest } from "../middlewares/userAuthenticate";
 import { DI } from "..";
+import { UserResponseData } from "../types";
 
 export type UserListRequest = { limit?: number; offset?: number };
 export type UserListResponse = {
-  users: Omit<User, "password">[];
+  users: UserResponseData[];
   total: number;
 };
 
@@ -29,8 +29,17 @@ export const userList = async (
       .status(200)
       .json({
         users: users.map((user) => {
-          const { password: p, ...successResponse } = user;
-          return successResponse;
+          return {
+            id: user.id,
+            username: user.username,
+            email: user.email,
+            emailVerified: user.emailVerified || false,
+            isAdmin: user.isAdmin || false,
+            product: user.product.name,
+            chats: user.chats.getItems().map((c) => c.id),
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt,
+          };
         }),
         total,
       })

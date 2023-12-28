@@ -5,6 +5,7 @@ import z from "zod";
 import argon2 from "argon2";
 
 import { Product } from "../db/entities/Product";
+import { UserResponseData } from "../types";
 
 export const UserCreateRequest = z
   .object({
@@ -15,11 +16,10 @@ export const UserCreateRequest = z
   .strict();
 
 export type UserCreateRequest = z.infer<typeof UserCreateRequest>;
-export type UserCreateResponse = Omit<User, "password">;
 
 export const userCreate = async (
   req: express.Request<{}, {}, UserCreateRequest>,
-  res: express.Response<UserCreateResponse>
+  res: express.Response<UserResponseData>
 ) => {
   try {
     const { em } = DI;
@@ -48,7 +48,17 @@ export const userCreate = async (
 
     await em.flush();
 
-    const { password: p, ...successResponse } = user;
+    const successResponse: UserResponseData = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      emailVerified: user.emailVerified || false,
+      isAdmin: user.isAdmin || false,
+      product: user.product.name,
+      chats: [],
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
 
     return res.status(200).json(successResponse).end();
   } catch (error) {
