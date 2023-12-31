@@ -1,9 +1,6 @@
 export { Message } from "./utils/types/Message";
 export { UserResponseData } from "./utils/types/UserResponseData";
-export {
-  UserCreateRequest,
-  UserCreateResponse,
-} from "./controllers/userCreate";
+export { UserCreateRequest } from "./controllers/userCreate";
 export {
   UserDeleteRequest,
   UserDeleteResponse,
