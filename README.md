@@ -27,7 +27,7 @@ This automatically creates the postgres db and pgAdmin docker containers
 With pnpm, scripts from inside each sub-applications can be ran from the root directory:
 
 - `pnpm api <script-name>` Example: `pnpm api dev`, `pnpm api build`
-- `pnpm nuxt <script-name>` Example: `pnpm nuxt dev`
+- `pnpm nuxt <script-name>` Example: `pnpm web dev`
 
 ## Creating a new database entity
 

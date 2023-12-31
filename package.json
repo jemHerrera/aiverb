@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "api": "pnpm --filter=api-server",
-    "nuxt": "pnpm --filter=nuxt-app",
+    "api": "pnpm --filter=aiverb-server",
+    "web": "pnpm --filter=aiverb-website",
     "dev": "pnpm run --parallel -r dev",
     "create-migration": "pnpm api create-migration",
     "migrate": "pnpm api migrate"
