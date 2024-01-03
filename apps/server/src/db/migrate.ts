@@ -8,7 +8,7 @@ export async function handler() {
   try {
     const orm = await MikroORM.init(mikroOrmConfig);
 
-    const em = DI.em.fork();
+    const em = orm.em.fork();
 
     const migrator = orm.getMigrator();
 

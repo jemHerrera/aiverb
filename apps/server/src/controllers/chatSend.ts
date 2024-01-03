@@ -5,6 +5,7 @@ import { AuthenticatedRequest } from "../middlewares/userAuthenticate";
 import { z } from "zod";
 import { Loaded } from "@mikro-orm/core";
 import { Message } from "../utils/types/Message";
+import { gpt35Turbo } from "../utils/aiModels/gpt35Turbo";
 
 export const ChatSendRequest = z
   .object({
@@ -54,7 +55,7 @@ export const chatSend = async (
     if (!chat) return res.sendStatus(500);
 
     // Do AI Stuff
-    let aiResponse = "Replace this placeholder with a response from the LLM.";
+    const aiResponse = await gpt35Turbo(message);
 
     const userMessage: Message = { from: "user", text: message };
     const aiMessage: Message = { from: "ai", text: aiResponse };

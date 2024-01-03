@@ -46,13 +46,15 @@ const sendMessage = async (): Promise<void> => {
     from: "user",
     text: userText.value,
   };
+
   messages.value.push(userMessage);
+
   userText.value = "";
 
   const { data, error: err } = await chatSend(
     {
       chatId: user.value?.chats[0],
-      message: userText.value,
+      message: messages.value[messages.value.length - 1].text,
     },
     sessionToken.value
   );
@@ -67,6 +69,7 @@ const sendMessage = async (): Promise<void> => {
     from: "ai",
     text: data.value.message,
   };
+
   messages.value.push(aiMessage);
 };
 </script>

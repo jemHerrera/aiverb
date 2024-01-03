@@ -13,7 +13,7 @@ Typescript - Express - PostgreSQL - Nuxt
 
 ## Running servers locally
 
-Run `pnpm dev`
+1. Run `pnpm dev`
 
 - postgres - localhost:5432
 - pgAdmin - localhost:5002
@@ -21,6 +21,9 @@ Run `pnpm dev`
 - nuxt server - localhost:3000
 
 This automatically creates the postgres db and pgAdmin docker containers
+
+2. Create migration files `pnpm create-migration`
+3. Run migration `pnpm migrate`
 
 ## Running app specific scripts
 
