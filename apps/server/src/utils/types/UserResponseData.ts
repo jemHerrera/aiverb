@@ -7,7 +7,6 @@ export type UserResponseData = {
   emailVerified: boolean;
   isAdmin: boolean;
   product: string;
-  chats: string[];
   createdAt: Date;
   updatedAt: Date;
 };

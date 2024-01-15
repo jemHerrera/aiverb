@@ -1,4 +1,4 @@
-export { Message } from "./utils/types/Message";
+export { ChatResponseData } from "./utils/types/ChatResponseData";
 export { UserResponseData } from "./utils/types/UserResponseData";
 export { UserCreateRequest } from "./controllers/userCreate";
 export {
@@ -13,4 +13,7 @@ export {
   UserUpdateOwnRequest,
 } from "./controllers/userUpdate";
 export { ChatSendRequest, ChatSendResponse } from "./controllers/chatSend";
-export { ChatGetOwnRequest, ChatGetOwnResponse } from "./controllers/chatGet";
+export {
+  ChatListOwnRequest,
+  ChatListOwnResponse,
+} from "./controllers/chatListOwn";

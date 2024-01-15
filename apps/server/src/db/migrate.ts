@@ -2,7 +2,6 @@ import { MikroORM } from "@mikro-orm/core";
 
 import mikroOrmConfig from "./_config/mikroOrmConfig";
 import { SeedProducts } from "./seeders/SeedProducts";
-import { DI } from "..";
 
 export async function handler() {
   try {

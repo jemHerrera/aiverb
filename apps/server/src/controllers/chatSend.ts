@@ -4,20 +4,18 @@ import { Chat, User } from "../db/entities";
 import { AuthenticatedRequest } from "../middlewares/userAuthenticate";
 import { z } from "zod";
 import { Loaded } from "@mikro-orm/core";
-import { Message } from "../utils/types/Message";
+import { gpt35TurboConversational } from "../utils/aiModels/gpt35TurboConversational";
 import { gpt35Turbo } from "../utils/aiModels/gpt35Turbo";
+import { ChatResponseData } from "../utils/types/ChatResponseData";
 
 export const ChatSendRequest = z
   .object({
-    chatId: z.string().optional(),
-    message: z.string(),
+    userMessage: z.string(),
   })
   .strict();
 
 export type ChatSendRequest = z.infer<typeof ChatSendRequest>;
-export type ChatSendResponse = {
-  message: string;
-};
+export type ChatSendResponse = ChatResponseData;
 
 export const chatSend = async (
   req: AuthenticatedRequest<{}, {}, ChatSendRequest>,
@@ -35,44 +33,49 @@ export const chatSend = async (
     const user = await em.findOne(User, { id });
     if (!user) return res.sendStatus(500);
 
-    const { chatId, message } = req.body;
+    const { userMessage } = req.body;
 
-    let chat: Loaded<Chat, never> | null;
+    // let chat: Loaded<Chat, never> | null;
 
-    if (!chatId) {
-      chat = em.create(Chat, {
-        user,
-        topic: "",
-        messages: [],
-      });
-    } else {
-      chat = await em.findOne(Chat, {
-        id: chatId,
-        user: user.id,
-      });
-    }
+    // if (!chatId) {
+    //   chat = em.create(Chat, {
+    //     user,
+    //     topic: "",
+    //     messages: [],
+    //   });
+    // } else {
+    //   chat = await em.findOne(Chat, {
+    //     id: chatId,
+    //     user: user.id,
+    //   });
+    // }
 
-    if (!chat) return res.sendStatus(500);
+    // if (!chat) return res.sendStatus(500);
 
     // Do AI Stuff
-    const aiResponse = await gpt35Turbo(message);
+    // Check if this is the first chat of the day
+    //
 
-    const userMessage: Message = { from: "user", text: message };
-    const aiMessage: Message = { from: "ai", text: aiResponse };
+    const aiMessage = await gpt35TurboConversational(userMessage);
 
-    chat.messages = [
-      ...chat.messages,
-      JSON.stringify(userMessage),
-      JSON.stringify(aiMessage),
-    ];
+    const chat = em.create(Chat, {
+      user,
+      userMessage,
+      aiMessage,
+    });
 
     await em.flush();
 
-    const successResponse: ChatSendResponse = {
-      message: aiResponse,
-    };
-
-    return res.status(200).json(successResponse).end();
+    return res
+      .status(200)
+      .json({
+        id: chat.id,
+        userId: chat.user.id,
+        userMessage: chat.userMessage,
+        aiMessage: chat.aiMessage,
+        createdAt: chat.createdAt,
+      })
+      .end();
   } catch (error) {
     console.log(error);
     return res.sendStatus(400);

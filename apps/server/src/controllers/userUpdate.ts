@@ -62,7 +62,6 @@ export const userUpdateOwn = async (
       emailVerified: user.emailVerified || false,
       isAdmin: user.isAdmin || false,
       product: user.product.name,
-      chats: user.chats.getItems().map((c) => c.id),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -124,7 +123,6 @@ export const userUpdate = async (
       emailVerified: user.emailVerified || false,
       isAdmin: user.isAdmin || false,
       product: user.product.name,
-      chats: user.chats.getItems().map((c) => c.id),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

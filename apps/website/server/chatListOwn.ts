@@ -1,7 +1,13 @@
 import type server from "./types";
 
-export const chatGet = async (body: server.ChatGetOwnRequest, auth: string) => {
-  const { data, error } = await useFetch<server.ChatGetOwnResponse>(
+export const chatListOwn = async (
+  body: server.ChatListOwnRequest,
+  auth: string
+): Promise<{
+  data: Ref<server.ChatListOwnResponse | null>;
+  error: Ref<any | null>;
+}> => {
+  const { data, error } = await useFetch<server.ChatListOwnResponse>(
     `${useRuntimeConfig().public.serverPort}/chat`,
     {
       body,
@@ -12,5 +18,6 @@ export const chatGet = async (body: server.ChatGetOwnRequest, auth: string) => {
       },
     }
   );
+
   return { data, error };
 };

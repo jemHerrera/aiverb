@@ -25,7 +25,6 @@ export const userGetOwn = async (
       emailVerified: user.emailVerified || false,
       isAdmin: user.isAdmin || false,
       product: user.product.name,
-      chats: user.chats.getItems().map((c) => c.id),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
@@ -62,7 +61,6 @@ export const userGet = async (
       emailVerified: user.emailVerified || false,
       isAdmin: user.isAdmin || false,
       product: user.product.name,
-      chats: user.chats.getItems().map((c) => c.id),
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

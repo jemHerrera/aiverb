@@ -55,7 +55,6 @@ export const userCreate = async (
       emailVerified: user.emailVerified || false,
       isAdmin: user.isAdmin || false,
       product: user.product.name,
-      chats: [],
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

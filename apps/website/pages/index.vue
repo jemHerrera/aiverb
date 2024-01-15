@@ -2,28 +2,24 @@
 import { useState, useCookie } from "nuxt/app";
 import { ref } from "vue";
 import type server from "../server/types";
+import type { Message } from "../utils/types/Message";
 
-import { chatGet } from "../server/chatGet";
+import { chatListOwn } from "../server/chatListOwn";
 import { chatSend } from "../server/chatSend";
 
-const user = useState<server.UserResponseData | null>("user");
 const sessionToken = useCookie("aiverb-session");
 
 const userText = ref("");
-const messages = ref<server.Message[]>([]);
+const messages = ref<Message[]>([]);
 const error = ref<boolean>(false);
 
 const getChat = async (): Promise<void> => {
-  const chatId = user.value?.chats[0];
-
-  if (!chatId) return;
-
   if (!sessionToken.value) {
     error.value = true;
     return;
   }
 
-  const { data, error: err } = await chatGet({ chatId }, sessionToken.value);
+  const { data, error: err } = await chatListOwn({}, sessionToken.value);
 
   if (err.value || !data.value) {
     console.error(err.value);
@@ -31,7 +27,13 @@ const getChat = async (): Promise<void> => {
     return;
   }
 
-  messages.value = data.value.messages;
+  (data.value.messages as server.ChatResponseData[]).forEach((message) => {
+    messages.value = [
+      ...messages.value,
+      { from: "user", message: message.userMessage },
+      { from: "ai", message: message.aiMessage },
+    ];
+  });
 };
 
 getChat();
@@ -42,20 +44,17 @@ const sendMessage = async (): Promise<void> => {
     return;
   }
 
-  const userMessage: server.Message = {
+  messages.value.push({
     from: "user",
-    text: userText.value,
-  };
+    message: userText.value,
+  });
 
-  messages.value.push(userMessage);
+  const userMessage = userText.value;
 
   userText.value = "";
 
   const { data, error: err } = await chatSend(
-    {
-      chatId: user.value?.chats[0],
-      message: messages.value[messages.value.length - 1].text,
-    },
+    { userMessage },
     sessionToken.value
   );
 
@@ -65,9 +64,9 @@ const sendMessage = async (): Promise<void> => {
     return;
   }
 
-  const aiMessage: server.Message = {
+  const aiMessage: Message = {
     from: "ai",
-    text: data.value.message,
+    message: data.value.aiMessage,
   };
 
   messages.value.push(aiMessage);
@@ -83,7 +82,7 @@ const sendMessage = async (): Promise<void> => {
           <p :class="['message', `from-${message.from}`]">
             <span v-if="message.from == 'ai'">Sensei: </span>
             <span v-if="message.from == 'user'">You: </span>
-            <span>{{ message.text }}</span>
+            <span>{{ message.message }}</span>
           </p>
         </template>
       </div>

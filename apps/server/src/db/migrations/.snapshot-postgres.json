@@ -236,8 +236,8 @@
           "nullable": false,
           "mappedType": "string"
         },
-        "topic": {
-          "name": "topic",
+        "user_message": {
+          "name": "user_message",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -245,14 +245,14 @@
           "nullable": false,
           "mappedType": "string"
         },
-        "messages": {
-          "name": "messages",
-          "type": "text[]",
+        "ai_message": {
+          "name": "ai_message",
+          "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "array"
+          "mappedType": "string"
         }
       },
       "name": "chat",
