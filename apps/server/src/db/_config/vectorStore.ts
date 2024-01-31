@@ -8,9 +8,9 @@ const config = {
     port: Number(process.env.DB_PORT) || 5432,
     user: process.env.DB_USER || "postgres",
     password: process.env.DB_PASSWORD || "password",
-    database: "api",
+    database: process.env.DB_NAME || "postgres",
   },
-  tableName: "vector",
+  tableName: "memory",
   columns: {
     idColumnName: "id",
     vectorColumnName: "vector",

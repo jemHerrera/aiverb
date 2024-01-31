@@ -31,14 +31,15 @@ export const chatListOwn = async (
 
     const { limit = 10, offset = 0 } = req.body;
 
-    const [chats, total] = await em.findAndCount(
+    const total = await em.count(Chat, { user: req.user.id });
+    const chats = await em.find(
       Chat,
       {
         user: req.user.id,
       },
       {
         limit: Math.min(limit, 10),
-        offset,
+        offset: Math.max(total - 10, 0),
       }
     );
 

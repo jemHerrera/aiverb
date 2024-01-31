@@ -7,9 +7,9 @@ export class Chat extends BaseEntity {
   @ManyToOne({ entity: () => User })
   user!: User;
 
-  @Property()
+  @Property({ length: 1000 })
   userMessage!: string;
 
-  @Property()
+  @Property({ length: 1000 })
   aiMessage!: string;
 }
