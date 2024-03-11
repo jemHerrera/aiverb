@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { useState, useCookie } from "nuxt/app";
+import { useCookie } from "nuxt/app";
 import { ref } from "vue";
 import type server from "../server/types";
 import type { Message } from "../utils/types/Message";
-
 import { chatListOwn } from "../server/chatListOwn";
 import { chatSend } from "../server/chatSend";
 
 const sessionToken = useCookie("aiverb-session");
-
 const userText = ref("");
 const messages = ref<Message[]>([]);
 const error = ref<boolean>(false);
+const speechUrl = ref<string>("");
 
 const getChat = async (): Promise<void> => {
   if (!sessionToken.value) {
@@ -70,6 +69,18 @@ const sendMessage = async (): Promise<void> => {
   };
 
   messages.value.push(aiMessage);
+
+  if (
+    data.value.aiSpeech?.audioContent &&
+    typeof data.value.aiSpeech?.audioContent == "object" &&
+    "data" in data.value.aiSpeech?.audioContent
+  ) {
+    const blob = new Blob(data.value.aiSpeech.audioContent.data as BlobPart[], {
+      type: "audio/wav",
+    });
+
+    speechUrl.value = window.URL.createObjectURL(blob);
+  }
 };
 </script>
 
@@ -86,6 +97,7 @@ const sendMessage = async (): Promise<void> => {
           </p>
         </template>
       </div>
+      <audio controls :src="speechUrl"></audio>
       <form class="aiverb-text-bar" @submit.prevent="sendMessage">
         <div class="form-item">
           <input type="text" name="chat" id="chat" v-model="userText" />

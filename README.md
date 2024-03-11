@@ -11,6 +11,12 @@ Typescript - Express - PostgreSQL - Nuxt
 3. Install [docker](https://www.docker.com/get-started/).
 4. Run `pnpm i` on the root directory. Ths will install all dependencies across all sub-applications.
 
+## gcloud Authentication
+
+1. Install Google Cloud CLI
+2. Run `gcloud init`
+3. Run `gcloud auth application-default login`
+
 ## Running servers locally
 
 1. Run `pnpm dev`

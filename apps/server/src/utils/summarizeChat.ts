@@ -5,6 +5,56 @@ import { StringOutputParser } from "@langchain/core/output_parsers";
 import { ChatOpenAI } from "langchain/chat_models/openai";
 
 export const summarizeChat = async (
+  chat: Chat,
+  aiName: string = "AI",
+  userName: string = "User"
+) => {
+  const chatModel = new ChatOpenAI({
+    openAIApiKey: process.env.OPENAI_API_KEY,
+  });
+
+  const outputParser = new StringOutputParser();
+
+  const conversation = `
+    \n${chat.createdAt} - ${userName}: "${chat.userMessage}"
+    \n${chat.createdAt} - ${aiName} : "${chat.aiMessage}"
+  `;
+
+  const summaryPrompt = ChatPromptTemplate.fromMessages([
+    [
+      "system",
+      `
+      Use the following examples as reference to summarize the conversation in the format given.
+
+      Example 1:
+      
+      Feb 14, 2024, 09:15 AM - Jem: Can you teach me Japanese?
+      Feb 14, 2024, 09:15 AM - Kaori: Absolutely! I'd be more than happy to teach you Japanese. Whether you're a beginner or looking to enhance your skills, I'll do my best to help you learn. Just let me know what areas you'd like to focus on or if you have any specific questions. がんばりましょう! (Let's do our best!)
+      
+      Expected Output:
+      On February 14, 2024, at 09:15 AM, Jem initiated a chat with Kaori, expressing an interest in learning Japanese. Kaori enthusiastically accepted the request, assuring Jem that she would be delighted to help him with his Japanese learning journey. Kaori also encouraged Jem to specify the areas he wanted to focus on or ask any questions. She concluded with a motivational phrase, "がんばりましょう! (Let's do our best!)"
+    
+      Example 2:
+
+      Feb 14, 2024, 09:25 AM - Jem: Can we talk to one another in both English and Japanese? I think we can learn better that way
+      Feb 14, 2024, 09:25 AM - Kaori: Absolutely! We can definitely communicate in both English and Japanese. Using both languages during our conversations can be a helpful and immersive way to learn. If there's a specific topic or concept you'd like to discuss or practice in Japanese, feel free to let me know, and we can switch to using Japanese. Otherwise, we can continue in English for now. Just let me know how you'd like to proceed!
+
+      Expected Output:
+      On February 14, 2024, at 09:25 AM, Jem proposed the idea of communicating in both English and Japanese for an enhanced learning experience. Kaori responded affirmatively, expressing enthusiasm for the suggestion. She agreed to the use of both languages, highlighting the benefits of such an approach for immersive learning. Kaori also offered flexibility, suggesting that they could switch to Japanese when discussing specific topics or concepts if Jem preferred. She concluded by giving Jem the freedom to decide whether to continue in English or transition to Japanese based on his preferences.
+      `,
+    ],
+    ["user", "{input}"],
+  ]);
+
+  const summaryChain = summaryPrompt.pipe(chatModel).pipe(outputParser);
+
+  return await summaryChain.invoke({
+    input: `Conversation : 
+    ${conversation}`,
+  });
+};
+
+export const summarizeChats = async (
   chats: Chat[],
   aiName: string = "AI",
   userName: string = "User"

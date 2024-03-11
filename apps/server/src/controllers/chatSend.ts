@@ -18,6 +18,7 @@ import { createRetrievalChain } from "langchain/chains/retrieval";
 
 import { summarizeChat } from "../utils/summarizeChat";
 import { StringOutputParser } from "@langchain/core/output_parsers";
+import { tts } from "../utils/tts";
 
 export const ChatSendRequest = z
   .object({
@@ -48,7 +49,8 @@ export const chatSend = async (
 
     const chatsCount = await em.count(Chat, { user: id });
 
-    const SUMMARIZE_INTERVAL = 5;
+    const HISTORY_SIZE = 3;
+    const SUMMARIZE_INTERVAL = 1;
 
     // Get the last x chats + current chat and use this to retrieve y number of relevant documents
     const previousChats = await em.find(
@@ -56,8 +58,8 @@ export const chatSend = async (
       { user: id },
       {
         orderBy: { createdAt: "ASC" },
-        limit: SUMMARIZE_INTERVAL,
-        offset: Math.max(chatsCount - SUMMARIZE_INTERVAL, 0),
+        limit: HISTORY_SIZE,
+        offset: Math.max(chatsCount - HISTORY_SIZE, 0),
       }
     );
 
@@ -128,36 +130,17 @@ export const chatSend = async (
       aiMessage: aiMessage.answer,
     });
 
-    // Get Chats.length. If Chats.length % 8, get the last 8 Chat + recentSummary then feed to a summarizer AI.
+    // Summarize chat and add to the vector database.
+    summarizeChat(chat, "Kaori", user.username).then((summary) => {
+      console.log(summary);
 
-    if (chatsCount != 0 && chatsCount % SUMMARIZE_INTERVAL == 0) {
-      em.find(
-        Chat,
-        { user: id },
+      vectorStore.addDocuments([
         {
-          orderBy: { createdAt: "ASC" },
-          limit: SUMMARIZE_INTERVAL,
-          offset: Math.max(chatsCount - SUMMARIZE_INTERVAL, 0),
-        }
-      ).then((lastXChats): void => {
-        summarizeChat(lastXChats, "Kaori", user.username).then(
-          (summariesString) => {
-            const summariesJSON: { summaries: string[] } =
-              JSON.parse(summariesString);
-
-            // Push all summeries to the vector store
-            vectorStore.addDocuments(
-              summariesJSON.summaries.map((s) => {
-                return {
-                  pageContent: s,
-                  metadata: { userId: id, type: "memory" },
-                };
-              })
-            );
-          }
-        );
-      });
-    }
+          pageContent: summary,
+          metadata: { userId: id },
+        },
+      ]);
+    });
 
     em.flush();
 
@@ -168,6 +151,7 @@ export const chatSend = async (
         userId: chat.user.id,
         userMessage: chat.userMessage,
         aiMessage: chat.aiMessage,
+        aiSpeech: await tts(chat.aiMessage),
         createdAt: chat.createdAt,
       })
       .end();
