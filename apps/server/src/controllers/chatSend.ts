@@ -151,7 +151,6 @@ export const chatSend = async (
         userId: chat.user.id,
         userMessage: chat.userMessage,
         aiMessage: chat.aiMessage,
-        aiSpeech: await tts(chat.aiMessage),
         createdAt: chat.createdAt,
       })
       .end();

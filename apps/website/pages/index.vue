@@ -1,16 +1,23 @@
 <script setup lang="ts">
 import { useCookie } from "nuxt/app";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 import type server from "../server/types";
 import type { Message } from "../utils/types/Message";
 import { chatListOwn } from "../server/chatListOwn";
 import { chatSend } from "../server/chatSend";
+import { tts } from "../server/tts";
 
 const sessionToken = useCookie("aiverb-session");
 const userText = ref("");
 const messages = ref<Message[]>([]);
 const error = ref<boolean>(false);
 const speechUrl = ref<string>("");
+const recorderIsSupported = ref<boolean>(false);
+const isRecording = ref<boolean>(false);
+const recorder = ref<MediaRecorder | null>(null);
+const audioChunks = ref<BlobPart[]>([]);
+// Default should be false and there should be a toggle ui for it
+const allowSpeech = ref<boolean>(true);
 
 const getChat = async (): Promise<void> => {
   if (!sessionToken.value) {
@@ -52,36 +59,99 @@ const sendMessage = async (): Promise<void> => {
 
   userText.value = "";
 
-  const { data, error: err } = await chatSend(
+  const { data: chatSendData, error: chatSendError } = await chatSend(
     { userMessage },
     sessionToken.value
   );
 
-  if (err.value || !data.value) {
+  if (chatSendError.value || !chatSendData.value) {
     error.value = true;
-    console.error(err.value);
+    console.error(chatSendError.value);
     return;
   }
 
   const aiMessage: Message = {
     from: "ai",
-    message: data.value.aiMessage,
+    message: chatSendData.value.aiMessage,
   };
 
   messages.value.push(aiMessage);
 
-  if (
-    data.value.aiSpeech?.audioContent &&
-    typeof data.value.aiSpeech?.audioContent == "object" &&
-    "data" in data.value.aiSpeech?.audioContent
-  ) {
-    const blob = new Blob(data.value.aiSpeech.audioContent.data as BlobPart[], {
-      type: "audio/wav",
-    });
+  if (allowSpeech.value) {
+    const { data: ttsData, error: ttsError } = await tts(
+      { text: aiMessage.message },
+      sessionToken.value
+    );
 
-    speechUrl.value = window.URL.createObjectURL(blob);
+    if (ttsError.value || !ttsData.value) {
+      error.value = true;
+      console.error(ttsError.value);
+      return;
+    }
+
+    const { audioContent } = ttsData.value.speech;
+
+    if (
+      audioContent &&
+      typeof audioContent == "object" &&
+      "data" in audioContent
+    ) {
+      const blob = new Blob(
+        [new Uint8Array(Object.values(audioContent.data as object))],
+        { type: "audio/mp3" }
+      );
+
+      speechUrl.value = window.URL.createObjectURL(blob);
+    }
   }
 };
+
+function startRecording() {
+  if (isRecording.value || !recorder.value) return;
+
+  isRecording.value = true;
+
+  recorder.value.start();
+}
+
+function stopRecording() {
+  if (!isRecording.value || !recorder.value) return;
+
+  isRecording.value = false;
+
+  recorder.value.stop();
+}
+
+// Handle the stop event
+
+onMounted(async () => {
+  if (!navigator.mediaDevices || !window.MediaRecorder) {
+    recorderIsSupported.value = false;
+
+    return;
+  }
+
+  recorderIsSupported.value = true;
+
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+  recorder.value = new MediaRecorder(stream);
+
+  recorder.value.ondataavailable = (event: BlobEvent) => {
+    audioChunks.value.push(event.data);
+  };
+
+  recorder.value.onstop = () => {
+    const audioBlob = new Blob(audioChunks.value, { type: "audio/wav" });
+
+    // Do something with the audio Blob (e.g., create a URL and play it)
+    const audioUrl = URL.createObjectURL(audioBlob);
+    const audio = new Audio(audioUrl);
+    audio.play();
+
+    console.log(audioBlob);
+  };
+});
 </script>
 
 <template>
@@ -104,6 +174,10 @@ const sendMessage = async (): Promise<void> => {
           <button type="submit">Send</button>
         </div>
       </form>
+      <button v-if="!isRecording" @click="startRecording()">
+        Start Recording
+      </button>
+      <button v-else @click="stopRecording()">Stop Recording</button>
       <p v-if="error" style="color: red">
         There's been an error. Please try again later.
       </p>

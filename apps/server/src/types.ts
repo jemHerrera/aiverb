@@ -17,3 +17,7 @@ export {
   ChatListOwnRequest,
   ChatListOwnResponse,
 } from "./controllers/chatListOwn";
+export {
+  TextToSpeechRequest,
+  TextToSpeechResponse,
+} from "./controllers/textToSpeech";
