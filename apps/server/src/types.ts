@@ -5,7 +5,7 @@ export {
   UserDeleteRequest,
   UserDeleteResponse,
 } from "./controllers/userDelete";
-export { UserGetRequest } from "./controllers/userGet";
+export { UserGetRequest, UserGetResponse } from "./controllers/userGet";
 export { UserListRequest, UserListResponse } from "./controllers/userList";
 export { UserLoginRequest, UserLoginResponse } from "./controllers/userLogin";
 export {

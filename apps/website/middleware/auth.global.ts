@@ -4,7 +4,7 @@ import type server from "../server/types";
 import { useCookie, useState } from "nuxt/app";
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
-  const user = useState<server.UserGetOwnResponse | null>("user");
+  const user = useState<server.UserResponseData | null>("user");
 
   if (to.path === "/") {
     const sessionCookie = useCookie("aiverb-session");
