@@ -16,6 +16,7 @@ const login = async (): Promise<void> => {
   if (isSubmitting.value) return;
 
   isSubmitting.value = true;
+
   const { data: response, error: err } = await userLogin({
     email: data.email,
     password: data.password,
@@ -23,6 +24,7 @@ const login = async (): Promise<void> => {
 
   if (err.value) {
     error.value = "Incorrect credentials.";
+    isSubmitting.value = false;
     return;
   }
 
@@ -35,6 +37,7 @@ const login = async (): Promise<void> => {
   sessionCookie.value = sessionToken;
 
   isSubmitting.value = false;
+
   await navigateTo("/");
 };
 
@@ -64,8 +67,10 @@ onUnmounted(reset);
 </script>
 
 <template>
-  <div class="page-login max-w-screen-sm mx-auto">
-    <h1>Login</h1>
+  <UContainer
+    class="max-w-screen-sm mx-auto flex flex-col justify-center min-h-screen"
+  >
+    <h1 class="text-4xl font-bold">Login</h1>
     <UAlert
       v-if="error"
       class="mt-6"
@@ -79,20 +84,24 @@ onUnmounted(reset);
       <div class="mt-6">
         <UFormGroup label="Email Address" name="emailAddress" class="mt-4">
           <UInput
+            variant="none"
             v-model="data.email"
             type="text"
             placeholder="Email Address"
             size="xl"
+            class="bg-gray-100 rounded-lg"
             :disabled="isSubmitting"
           />
         </UFormGroup>
 
         <UFormGroup label="Password" name="password" class="mt-3">
           <UInput
+            variant="none"
             v-model="data.password"
             :type="passwordFieldType"
             placeholder="Password"
             size="xl"
+            class="bg-gray-100 rounded-lg"
             :disabled="isSubmitting"
           >
             <template #trailing> &nbsp; </template>
@@ -110,10 +119,10 @@ onUnmounted(reset);
         </UFormGroup>
       </div>
       <UButton
-        class="bg-gradient-to-r from-gra1-from to-gra1-to hover:to-gra1-from hover:from-gra1-to"
+        class="mt-6 bg-gradient-to-r bg-blue-800 hover:bg-blue-700"
         block
         label="Sign In"
-        trailing-icon="i-heroicons-chevron-right"
+        trailing-icon="i-heroicons-chevron-right-20-solid"
         variant="solid"
         size="xl"
         :disabled="isSubmitting"
@@ -121,6 +130,9 @@ onUnmounted(reset);
         @click="login"
       />
     </form>
-    <p>Don't have account yet? <NuxtLink to="/register">Register</NuxtLink></p>
-  </div>
+    <p class="text-gray-500 mt-4">
+      Don't have account yet?
+      <NuxtLink class="text-black underline" to="/register">Register</NuxtLink>
+    </p>
+  </UContainer>
 </template>
