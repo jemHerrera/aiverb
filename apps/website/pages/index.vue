@@ -9,7 +9,24 @@ import { tts } from "../server/tts";
 
 const sessionToken = useCookie("aiverb-session");
 const userText = ref("");
-const messages = ref<Message[]>([]);
+const messages = ref<Message[]>([
+  {
+    from: "user",
+    message: "Say something in Japanese with some english words in it.",
+  },
+  {
+    from: "ai",
+    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
+  },
+  {
+    from: "user",
+    message: "Amazing, can you do one more?",
+  },
+  {
+    from: "ai",
+    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
+  },
+]);
 const error = ref<boolean>(false);
 const speechUrl = ref<string>("");
 const recorderIsSupported = ref<boolean>(false);
@@ -42,7 +59,7 @@ const getChat = async (): Promise<void> => {
   });
 };
 
-getChat();
+// getChat();
 
 const sendMessage = async (): Promise<void> => {
   if (!sessionToken.value) {
@@ -121,8 +138,6 @@ function stopRecording() {
 
   recorder.value.stop();
 }
-
-// Handle the stop event
 
 onMounted(async () => {
   if (!navigator.mediaDevices || !window.MediaRecorder) {

@@ -18,7 +18,7 @@ const logout = async (): Promise<void> => {
 
 <template>
   <div v-if="user" class="side-bar">
-    <p>Logged in as: {{ user.username }}</p>
+    <p>Logged in as: {{ user.value?.username }}</p>
     <button @click="logout">Logout</button>
   </div>
 </template>
