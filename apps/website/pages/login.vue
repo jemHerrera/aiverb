@@ -119,7 +119,7 @@ onUnmounted(reset);
         </UFormGroup>
       </div>
       <UButton
-        class="mt-6 bg-gradient-to-r bg-blue-800 hover:bg-blue-700"
+        class="mt-6 bg-blue-800 hover:bg-blue-700"
         block
         label="Sign In"
         trailing-icon="i-heroicons-chevron-right-20-solid"

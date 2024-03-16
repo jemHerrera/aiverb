@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useCookie } from "nuxt/app";
-import { onMounted, ref } from "vue";
 import type server from "../server/types";
 import type { Message } from "../utils/types/Message";
 import { chatListOwn } from "../server/chatListOwn";
@@ -8,7 +7,8 @@ import { chatSend } from "../server/chatSend";
 import { tts } from "../server/tts";
 
 const sessionToken = useCookie("aiverb-session");
-const userText = ref("");
+const userInput = ref("");
+const user = useState<server.UserResponseData | null>("user");
 const messages = ref<Message[]>([
   {
     from: "user",
@@ -26,82 +26,139 @@ const messages = ref<Message[]>([
     from: "ai",
     message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
   },
+  {
+    from: "user",
+    message: "Say something in Japanese with some english words in it.",
+  },
+  {
+    from: "ai",
+    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
+  },
+  {
+    from: "user",
+    message: "Amazing, can you do one more?",
+  },
+  {
+    from: "ai",
+    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
+  },
 ]);
-const error = ref<boolean>(false);
 const speechUrl = ref<string>("");
-const recorderIsSupported = ref<boolean>(false);
-const isRecording = ref<boolean>(false);
-const recorder = ref<MediaRecorder | null>(null);
-const audioChunks = ref<BlobPart[]>([]);
-// Default should be false and there should be a toggle ui for it
-const allowSpeech = ref<boolean>(true);
+const error = ref<string>("");
+const isFetching = ref<boolean>(false);
+const isTyping = ref<boolean>(false);
+const isSpeaking = ref<boolean>(false);
 
-const getChat = async (): Promise<void> => {
+function reset(): void {
+  messages.value = [];
+  userInput.value = "";
+  speechUrl.value = "";
+  error.value = "";
+  isTyping.value = false;
+  isSpeaking.value = false;
+}
+
+async function getChat(): Promise<void> {
   if (!sessionToken.value) {
-    error.value = true;
+    error.value = "Session token not found. You are an invalid user.";
     return;
   }
 
-  const { data, error: err } = await chatListOwn({}, sessionToken.value);
+  isFetching.value = true;
 
-  if (err.value || !data.value) {
-    console.error(err.value);
-    error.value = true;
-    return;
+  try {
+    const { data, error: err } = await chatListOwn({}, sessionToken.value);
+
+    if (err.value || !data.value) {
+      error.value =
+        "Error fetching chat messages. Refresh the page and try again.";
+      return;
+    }
+
+    (data.value.messages as server.ChatResponseData[]).forEach((message) => {
+      messages.value = [
+        ...messages.value,
+        { from: "user", message: message.userMessage },
+        { from: "ai", message: message.aiMessage },
+      ];
+    });
+
+    isFetching.value = false;
+  } catch (e) {
+    error.value =
+      "Error fetching chat messages. Refresh the page and try again.";
+
+    isFetching.value = false;
   }
+}
 
-  (data.value.messages as server.ChatResponseData[]).forEach((message) => {
-    messages.value = [
-      ...messages.value,
-      { from: "user", message: message.userMessage },
-      { from: "ai", message: message.aiMessage },
-    ];
-  });
-};
-
-// getChat();
-
-const sendMessage = async (): Promise<void> => {
+async function sendMessage(
+  options: { voice: boolean } = { voice: false }
+): Promise<void> {
+  if (userInput.value || isTyping.value) return;
   if (!sessionToken.value) {
-    error.value = true;
+    error.value = "Session token not found. You are an invalid user.";
     return;
   }
 
   messages.value.push({
     from: "user",
-    message: userText.value,
+    message: userInput.value,
   });
 
-  const userMessage = userText.value;
+  const userMessage = userInput.value;
 
-  userText.value = "";
+  userInput.value = "";
 
-  const { data: chatSendData, error: chatSendError } = await chatSend(
-    { userMessage },
-    sessionToken.value
-  );
+  isTyping.value = true;
 
-  if (chatSendError.value || !chatSendData.value) {
-    error.value = true;
-    console.error(chatSendError.value);
+  try {
+    const { data: chatSendData, error: chatSendError } = await chatSend(
+      { userMessage },
+      sessionToken.value
+    );
+
+    if (chatSendError.value || !chatSendData.value) {
+      error.value = "Error sending message. Please try again later.";
+      return;
+    }
+
+    const aiMessage: Message = {
+      from: "ai",
+      message: chatSendData.value.aiMessage,
+    };
+
+    messages.value.push(aiMessage);
+
+    if (options.voice) {
+      speak(aiMessage.message);
+    }
+
+    isTyping.value = false;
+  } catch (e) {
+    error.value = "Error sending message. Please try again later.";
+    isTyping.value = false;
+  }
+}
+
+async function speak(message: string) {
+  if (isSpeaking.value) return;
+
+  if (!sessionToken.value) {
+    error.value = "Session token not found. You are an invalid user.";
     return;
   }
 
-  const aiMessage: Message = {
-    from: "ai",
-    message: chatSendData.value.aiMessage,
-  };
+  isSpeaking.value = true;
 
-  messages.value.push(aiMessage);
-
-  if (allowSpeech.value) {
+  try {
     const { data: ttsData, error: ttsError } = await tts(
-      { text: aiMessage.message },
+      { text: message },
       sessionToken.value
     );
 
     if (ttsError.value || !ttsData.value) {
-      error.value = true;
+      error.value = "Something went wrong. please try again later.";
       console.error(ttsError.value);
       return;
     }
@@ -120,82 +177,88 @@ const sendMessage = async (): Promise<void> => {
 
       speechUrl.value = window.URL.createObjectURL(blob);
     }
+
+    isSpeaking.value = false;
+  } catch (e) {
+    error.value = "Something went wrong. please try again later.";
+    isSpeaking.value = false;
   }
-};
-
-function startRecording() {
-  if (isRecording.value || !recorder.value) return;
-
-  isRecording.value = true;
-
-  recorder.value.start();
 }
 
-function stopRecording() {
-  if (!isRecording.value || !recorder.value) return;
+async function transcribeRecording(data: BlobPart[]) {
+  const audioBlob = new Blob(data, { type: "audio/wav" });
 
-  isRecording.value = false;
+  console.log(audioBlob);
 
-  recorder.value.stop();
+  //TODO: STT
+
+  // sendMessage({ voice: true });
 }
 
-onMounted(async () => {
-  if (!navigator.mediaDevices || !window.MediaRecorder) {
-    recorderIsSupported.value = false;
-
-    return;
-  }
-
-  recorderIsSupported.value = true;
-
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-
-  recorder.value = new MediaRecorder(stream);
-
-  recorder.value.ondataavailable = (event: BlobEvent) => {
-    audioChunks.value.push(event.data);
-  };
-
-  recorder.value.onstop = () => {
-    const audioBlob = new Blob(audioChunks.value, { type: "audio/wav" });
-
-    // Do something with the audio Blob (e.g., create a URL and play it)
-    const audioUrl = URL.createObjectURL(audioBlob);
-    const audio = new Audio(audioUrl);
-    audio.play();
-
-    console.log(audioBlob);
-  };
-});
+onUnmounted(reset);
 </script>
 
 <template>
-  <div class="aiverb">
+  <div>
     <Sidebar />
-    <div class="aiverb-chat">
-      <div class="chatbox" v-if="messages.length">
+    <UContainer class="max-w-screen-sm mx-auto relative h-screen max-h-screen">
+      <div
+        class="flex flex-col justify-end min-h-screen py-20"
+        v-if="messages.length"
+      >
         <template v-for="(message, index) of messages" :key="index">
-          <p :class="['message', `from-${message.from}`]">
+          <div class="flex gap-4 mb-8">
+            <UAvatar v-if="message.from == 'ai'" alt="J" size="md" />
+            <UAvatar v-else :alt="'You'" size="md" />
+            <div>
+              <p v-if="message.from == 'ai'" class="font-bold">J Sensei</p>
+              <p v-else class="font-bold">You</p>
+              <p>
+                {{ message.message }}
+              </p>
+            </div>
+          </div>
+          <!-- <p :class="['message', `from-${message.from}`]">
             <span v-if="message.from == 'ai'">Sensei: </span>
             <span v-if="message.from == 'user'">You: </span>
             <span>{{ message.message }}</span>
-          </p>
+          </p> -->
         </template>
       </div>
-      <audio controls :src="speechUrl"></audio>
-      <form class="aiverb-text-bar" @submit.prevent="sendMessage">
-        <div class="form-item">
-          <input type="text" name="chat" id="chat" v-model="userText" />
-          <button type="submit">Send</button>
-        </div>
-      </form>
-      <button v-if="!isRecording" @click="startRecording()">
-        Start Recording
-      </button>
-      <button v-else @click="stopRecording()">Stop Recording</button>
-      <p v-if="error" style="color: red">
-        There's been an error. Please try again later.
-      </p>
+    </UContainer>
+    <div class="fixed w-screen bottom-0 left-0 pb-2 md:pb-6">
+      <UContainer class="max-w-screen-sm mx-auto">
+        <UFormGroup name="text" class="mt-3 relative">
+          <UInput
+            variant="none"
+            v-model="userInput"
+            type="text"
+            placeholder="Message sensei.."
+            size="2xl"
+            class="bg-gray-100 rounded-lg py-1"
+            :disabled="isTyping"
+          >
+          </UInput>
+
+          <UButton
+            v-if="userInput.length"
+            class="absolute top-1 right-1"
+            icon="i-heroicons-arrow-up-20-solid"
+            size="lg"
+            variant="solid"
+            color="blue"
+            square
+            @click="sendMessage()"
+            :disabled="isTyping"
+          />
+
+          <Recorder
+            class="absolute top-1 right-1"
+            v-else
+            @end-recording="transcribeRecording"
+          />
+        </UFormGroup>
+      </UContainer>
     </div>
   </div>
 </template>
