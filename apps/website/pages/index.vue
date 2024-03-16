@@ -9,40 +9,7 @@ import { tts } from "../server/tts";
 const sessionToken = useCookie("aiverb-session");
 const userInput = ref("");
 const user = useState<server.UserResponseData | null>("user");
-const messages = ref<Message[]>([
-  {
-    from: "user",
-    message: "Say something in Japanese with some english words in it.",
-  },
-  {
-    from: "ai",
-    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
-  },
-  {
-    from: "user",
-    message: "Amazing, can you do one more?",
-  },
-  {
-    from: "ai",
-    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
-  },
-  {
-    from: "user",
-    message: "Say something in Japanese with some english words in it.",
-  },
-  {
-    from: "ai",
-    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
-  },
-  {
-    from: "user",
-    message: "Amazing, can you do one more?",
-  },
-  {
-    from: "ai",
-    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
-  },
-]);
+const messages = ref<Message[]>([]);
 const speechUrl = ref<string>("");
 const error = ref<string>("");
 const isFetching = ref<boolean>(false);
@@ -91,6 +58,8 @@ async function getChat(): Promise<void> {
     isFetching.value = false;
   }
 }
+
+getChat();
 
 async function sendMessage(
   options: { voice: boolean } = { voice: false }
