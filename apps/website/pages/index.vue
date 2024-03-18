@@ -92,7 +92,7 @@ async function getChat(): Promise<void> {
   }
 }
 
-// getChat();
+getChat();
 
 async function sendMessage(
   options: { voice: boolean } = { voice: false }
