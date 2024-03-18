@@ -10,6 +10,7 @@ Typescript - Express - PostgreSQL - Nuxt
 2. Install [pnpm](https://pnpm.io/) locally.
 3. Install [docker](https://www.docker.com/get-started/).
 4. Run `pnpm i` on the root directory. Ths will install all dependencies across all sub-applications.
+5. Add environment variables
 
 ## gcloud Authentication
 
