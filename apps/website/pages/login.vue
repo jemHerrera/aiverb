@@ -89,7 +89,7 @@ onUnmounted(reset);
             type="text"
             placeholder="Email Address"
             size="xl"
-            class="bg-gray-100 rounded-lg"
+            class="bg-gray-100 dark:bg-gray-800 rounded-lg"
             :disabled="isSubmitting"
           />
         </UFormGroup>
@@ -101,11 +101,9 @@ onUnmounted(reset);
             :type="passwordFieldType"
             placeholder="Password"
             size="xl"
-            class="bg-gray-100 rounded-lg"
+            class="bg-gray-100 dark:bg-gray-800 rounded-lg"
             :disabled="isSubmitting"
-          >
-            <template #trailing> &nbsp; </template>
-          </UInput>
+          />
 
           <UButton
             class="absolute top-1 right-2"
