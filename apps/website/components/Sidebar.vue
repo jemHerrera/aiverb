@@ -11,14 +11,44 @@ const logout = async (): Promise<void> => {
     user.value = null;
     sessionCookie.value = null;
 
-    await navigateTo("/login");
+    navigateTo("/login");
   }
 };
 </script>
 
 <template>
-  <div v-if="user" class="side-bar">
-    <p>Logged in as: {{ user.value?.username }}</p>
-    <button @click="logout">Logout</button>
+  <!-- <div v-if="user" class="side-bar h-full bg-gray-100"> -->
+  <div
+    class="z-10 side-bar fixed top-0 left-0 w-screen flex justify-end px-4 py-2"
+  >
+    <UDropdown
+      :items="[
+        [
+          {
+            label: 'Sign out',
+            color: 'red',
+            icon: 'i-heroicons-arrow-right-start-on-rectangle-20-solid',
+            click: logout,
+          },
+        ],
+      ]"
+      :popper="{ placement: 'bottom-start' }"
+    >
+      <UButton
+        variant="ghost"
+        color="gray"
+        class="flex gap-2 hover:bg-gray-100"
+      >
+        <UAvatar
+          alt="Jem Herrera"
+          size="md"
+          :ui="{
+            background: 'bg-gray-800',
+            placeholder: 'text-white',
+          }"
+        />
+        <p class="hidden md:block">Jem Herrera</p>
+      </UButton>
+    </UDropdown>
   </div>
 </template>

@@ -9,9 +9,42 @@ import { tts } from "../server/tts";
 const sessionToken = useCookie("aiverb-session");
 const userInput = ref("");
 const user = useState<server.UserResponseData | null>("user");
-const messages = ref<Message[]>([]);
-const speechUrl = ref<string>("");
+const messages = ref<Message[]>([
+  {
+    from: "user",
+    message: "Say something in Japanese with some english words in it.",
+  },
+  {
+    from: "ai",
+    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
+  },
+  {
+    from: "user",
+    message: "Amazing, can you do one more?",
+  },
+  {
+    from: "ai",
+    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
+  },
+  {
+    from: "user",
+    message: "Say something in Japanese with some english words in it.",
+  },
+  {
+    from: "ai",
+    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
+  },
+  {
+    from: "user",
+    message: "Amazing, can you do one more?",
+  },
+  {
+    from: "ai",
+    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
+  },
+]);
 const error = ref<string>("");
+const audio = ref<HTMLAudioElement | null>(null);
 const isFetching = ref<boolean>(false);
 const isTyping = ref<boolean>(false);
 const isSpeaking = ref<boolean>(false);
@@ -19,8 +52,8 @@ const isSpeaking = ref<boolean>(false);
 function reset(): void {
   messages.value = [];
   userInput.value = "";
-  speechUrl.value = "";
   error.value = "";
+  audio.value = null;
   isTyping.value = false;
   isSpeaking.value = false;
 }
@@ -144,7 +177,7 @@ async function speak(message: string) {
         { type: "audio/mp3" }
       );
 
-      speechUrl.value = window.URL.createObjectURL(blob);
+      audio.value = new Audio(window.URL.createObjectURL(blob));
     }
 
     isSpeaking.value = false;
@@ -164,11 +197,15 @@ async function transcribeRecording(data: BlobPart[]) {
   // sendMessage({ voice: true });
 }
 
+onMounted(() => {
+  window.scrollTo(0, document.body.scrollHeight);
+});
+
 onUnmounted(reset);
 </script>
 
 <template>
-  <div>
+  <div class="flex">
     <Sidebar />
     <UContainer class="max-w-screen-sm mx-auto relative h-screen max-h-screen">
       <div
@@ -180,18 +217,48 @@ onUnmounted(reset);
             <UAvatar v-if="message.from == 'ai'" alt="J" size="md" />
             <UAvatar v-else :alt="'You'" size="md" />
             <div>
-              <p v-if="message.from == 'ai'" class="font-bold">J Sensei</p>
+              <div
+                v-if="message.from == 'ai'"
+                class="font-bold flex gap-2 items-center"
+              >
+                <p class="font-bold">J Sensei</p>
+                <div v-if="audio && index === messages.length - 1">
+                  <UButton
+                    v-if="!audio.paused"
+                    icon="i-heroicons-play-20-solid"
+                    size="2xs"
+                    variant="solid"
+                    color="blue"
+                    :square="false"
+                    class="rounded-full p-1"
+                    @click="
+                      () => {
+                        if (audio) audio.play();
+                      }
+                    "
+                  />
+                  <UButton
+                    v-else
+                    icon="i-heroicons-pause-20-solid"
+                    size="2xs"
+                    variant="solid"
+                    color="blue"
+                    :square="false"
+                    class="rounded-full p-1"
+                    @click="
+                      () => {
+                        if (audio) audio.pause();
+                      }
+                    "
+                  />
+                </div>
+              </div>
               <p v-else class="font-bold">You</p>
               <p>
                 {{ message.message }}
               </p>
             </div>
           </div>
-          <!-- <p :class="['message', `from-${message.from}`]">
-            <span v-if="message.from == 'ai'">Sensei: </span>
-            <span v-if="message.from == 'user'">You: </span>
-            <span>{{ message.message }}</span>
-          </p> -->
         </template>
       </div>
     </UContainer>
@@ -204,7 +271,7 @@ onUnmounted(reset);
             type="text"
             placeholder="Message sensei.."
             size="2xl"
-            class="bg-gray-100 rounded-lg py-1"
+            class="bg-bg-gray-100 rounded-lg py-1"
             :disabled="isTyping"
           >
           </UInput>
