@@ -11,6 +11,7 @@ const audio = ref<HTMLAudioElement | null>(null);
 const isFetching = ref<boolean>(false);
 const isTyping = ref<boolean>(false);
 const isSpeaking = ref<boolean>(false);
+const audioIsPlaying = ref<boolean>(false);
 
 const { data: useListChatData, error: useListChatError } = await useListChat(
   {},
@@ -59,23 +60,27 @@ async function sendMessage(
     return;
   }
 
-  messages.value.push({
-    from: "user",
-    message: userInput.value,
-  });
+  messages.value = [
+    ...messages.value,
+    {
+      from: "user",
+      message: userInput.value,
+    },
+    {
+      from: "ai",
+      message: "",
+    },
+  ];
+
+  isTyping.value = true;
+
+  await nextTick();
+
+  window.scrollTo(0, document.body.scrollHeight);
 
   const userMessage = userInput.value;
 
   userInput.value = "";
-
-  messages.value.push({
-    from: "ai",
-    message: "",
-  });
-
-  isTyping.value = true;
-
-  window.scrollTo(0, document.body.scrollHeight);
 
   try {
     const { data: chatSendData, error: chatSendError } = await useSendChat(
@@ -93,8 +98,8 @@ async function sendMessage(
 
     window.scrollTo(0, document.body.scrollHeight);
 
-    if (options.voice) {
-      // speak(aiMessage.message);
+    if (options.voice != false) {
+      speak(chatSendData.value.aiMessage);
     }
 
     isTyping.value = false;
@@ -187,7 +192,7 @@ onUnmounted(reset);
                 <p class="font-bold">J Sensei</p>
                 <div v-if="audio && index === messages.length - 1">
                   <UButton
-                    v-if="!audio.paused"
+                    v-if="!audioIsPlaying"
                     icon="i-heroicons-play-20-solid"
                     size="2xs"
                     variant="solid"
@@ -196,7 +201,10 @@ onUnmounted(reset);
                     class="rounded-full p-1"
                     @click="
                       () => {
-                        if (audio) audio.play();
+                        if (audio) {
+                          audio.play();
+                          audioIsPlaying = true;
+                        }
                       }
                     "
                   />
@@ -210,7 +218,10 @@ onUnmounted(reset);
                     class="rounded-full p-1"
                     @click="
                       () => {
-                        if (audio) audio.pause();
+                        if (audio) {
+                          audio.pause();
+                          audioIsPlaying = false;
+                        }
                       }
                     "
                   />
@@ -245,6 +256,7 @@ onUnmounted(reset);
             size="xl"
             class="bg-bg-gray-100 dark:bg-gray-900 dark:bg-opacity-90 rounded-lg py-1"
             :disabled="isTyping"
+            @keyup.enter="sendMessage"
           >
           </UInput>
 
@@ -257,7 +269,6 @@ onUnmounted(reset);
             color="blue"
             square
             @click="sendMessage"
-            @keyup.enter="sendMessage"
             :disabled="isTyping"
           />
 
@@ -271,4 +282,3 @@ onUnmounted(reset);
     </div>
   </div>
 </template>
-../composables/chatListOwn../composables/chatSend../composables/tts
