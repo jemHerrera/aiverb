@@ -1,6 +1,9 @@
-import type server from "./types";
+import type server from "../utils/server";
 
-export const tts = async (body: server.TextToSpeechRequest, auth: string) => {
+export const useTTS = async (
+  body: server.TextToSpeechRequest,
+  auth: string
+) => {
   const { data, error } = await useFetch<server.TextToSpeechResponse>(
     `${useRuntimeConfig().public.serverPort}/chat/tts`,
     {

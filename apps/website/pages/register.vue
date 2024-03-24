@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { userCreate } from "../server/userCreate";
 import { reactive, ref } from "vue";
 import z from "zod";
 
@@ -96,7 +95,7 @@ const register = async (): Promise<void> => {
   isSubmitting.value = true;
 
   try {
-    const { error } = await userCreate({
+    const { error } = await useRegister({
       email: data.email,
       username: data.username,
       password: data.password,
@@ -156,10 +155,10 @@ onUnmounted(reset);
             <UInput
               variant="none"
               v-model="data.email"
-              type="text"
+              type="email"
               placeholder="Email Address"
               size="xl"
-              class="bg-gray-50 rounded-lg"
+              class="bg-gray-100 dark:bg-gray-800 rounded-lg"
               :disabled="isSubmitting"
             />
           </UFormGroup>
@@ -176,7 +175,7 @@ onUnmounted(reset);
               type="text"
               placeholder="Username"
               size="xl"
-              class="bg-gray-50 rounded-lg"
+              class="bg-gray-100 dark:bg-gray-800 rounded-lg"
               :disabled="isSubmitting"
             />
           </UFormGroup>
@@ -193,7 +192,7 @@ onUnmounted(reset);
               :type="passwordFieldType"
               placeholder="Password"
               size="xl"
-              class="bg-gray-50 rounded-lg"
+              class="bg-gray-100 dark:bg-gray-800 rounded-lg"
               :disabled="isSubmitting"
             >
               <template #trailing> &nbsp; </template>
@@ -217,14 +216,14 @@ onUnmounted(reset);
               type="password"
               placeholder="Confirm Password"
               size="xl"
-              class="bg-gray-50 rounded-lg"
+              class="bg-gray-100 dark:bg-gray-800 rounded-lg"
               :disabled="isSubmitting"
             />
           </UFormGroup>
         </div>
 
         <UButton
-          class="mt-6 bg-gradient-to-r bg-blue-800 hover:bg-blue-700"
+          class="mt-6 bg-gradient-to-r bg-blue-800 dark:text-blue-200 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-700"
           block
           label="Create an account"
           variant="solid"
@@ -234,15 +233,17 @@ onUnmounted(reset);
           @click="register"
         />
       </form>
-      <p class="text-gray-500 mt-4">
+      <p class="text-gray-500 mt-4 text-sm">
         Already have an account?
-        <NuxtLink class="text-black underline" to="/login">Sign-in</NuxtLink>
+        <NuxtLink class="text-black underline dark:text-white" to="/login">
+          Sign-in
+        </NuxtLink>
       </p>
     </div>
-    <div v-else class="flex items-center justify-center">
+    <div v-else class="flex flex-col gap-4 items-center justify-center">
       <p class="text-4xl font-bold text-center">Successfuly registered. 👍</p>
       <UButton
-        class="mt-6 bg-gradient-to-r bg-blue-800 hover:bg-blue-700"
+        class="max-w-[300px] mt-6 bg-gradient-to-r bg-blue-800 hover:bg-blue-700 dark:bg-blue-800 dark:hover:bg-blue-700"
         block
         label="Sign In"
         trailing-icon="i-heroicons-chevron-right-20-solid"

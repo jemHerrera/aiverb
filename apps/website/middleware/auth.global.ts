@@ -1,5 +1,5 @@
-import { userGetOwn } from "../server/userGet";
-import type server from "../server/types";
+import { useGetUser } from "../composables/useGetUser";
+import type server from "../utils/server";
 
 import { useCookie, useState } from "nuxt/app";
 
@@ -9,7 +9,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
   if (to.path === "/") {
     const sessionCookie = useCookie("aiverb-session");
     if (!sessionCookie.value) return navigateTo("/login");
-    const { data, error } = await userGetOwn(sessionCookie.value);
+    const { data, error } = await useGetUser(sessionCookie.value);
     if (error.value) return navigateTo("/login");
     user.value = data.value;
   }

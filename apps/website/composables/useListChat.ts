@@ -1,12 +1,9 @@
-import type server from "./types";
+import type server from "../utils/server";
 
-export const chatListOwn = async (
+export const useListChat = async (
   body: server.ChatListOwnRequest,
   auth: string
-): Promise<{
-  data: Ref<server.ChatListOwnResponse | null>;
-  error: Ref<any | null>;
-}> => {
+) => {
   const { data, error } = await useFetch<server.ChatListOwnResponse>(
     `${useRuntimeConfig().public.serverPort}/chat`,
     {

@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import { useCookie, navigateTo } from "nuxt/app";
-import { userLogin } from "../server/userLogin";
-import type server from "../server/types";
+import type server from "../utils/server";
 
 const data = reactive({
   email: "",
@@ -17,7 +16,7 @@ const login = async (): Promise<void> => {
 
   isSubmitting.value = true;
 
-  const { data: response, error: err } = await userLogin({
+  const { data: response, error: err } = await useLogin({
     email: data.email,
     password: data.password,
   });
@@ -117,7 +116,7 @@ onUnmounted(reset);
         </UFormGroup>
       </div>
       <UButton
-        class="mt-6 bg-blue-800 hover:bg-blue-700"
+        class="mt-6 bg-blue-800 hover:bg-blue-700 dark:text-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700"
         block
         label="Sign In"
         trailing-icon="i-heroicons-chevron-right-20-solid"
@@ -128,9 +127,12 @@ onUnmounted(reset);
         @click="login"
       />
     </form>
-    <p class="text-gray-500 mt-4">
+    <p class="text-gray-500 mt-4 text-sm">
       Don't have account yet?
-      <NuxtLink class="text-black underline" to="/register">Register</NuxtLink>
+      <NuxtLink class="text-black underline dark:text-white" to="/register">
+        Register
+      </NuxtLink>
     </p>
   </UContainer>
 </template>
+../composables/userLogin

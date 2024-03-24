@@ -1,6 +1,6 @@
-import type server from "./types";
+import type server from "../utils/server";
 
-export const userGetOwn = async (auth: string) => {
+export const useGetUser = async (auth: string) => {
   const { data, error } = await useFetch<server.UserResponseData>(
     `${useRuntimeConfig().public.serverPort}/me`,
     {

@@ -17,8 +17,8 @@ const logout = async (): Promise<void> => {
 </script>
 
 <template>
-  <!-- <div v-if="user" class="side-bar h-full bg-gray-100"> -->
   <div
+    v-if="user"
     class="z-10 side-bar fixed top-0 left-0 w-screen flex justify-end px-4 py-2"
   >
     <UDropdown

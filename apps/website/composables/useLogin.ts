@@ -1,6 +1,6 @@
-import type server from "./types";
+import type server from "../utils/server";
 
-export const userLogin = async (body: server.UserLoginRequest) => {
+export const useLogin = async (body: server.UserLoginRequest) => {
   const { data, error } = await useFetch<server.UserLoginResponse>(
     `${useRuntimeConfig().public.serverPort}/auth/login`,
     {

@@ -1,6 +1,9 @@
-import type server from "./types";
+import type server from "../utils/server";
 
-export const chatSend = async (body: server.ChatSendRequest, auth: string) => {
+export const useSendChat = async (
+  body: server.ChatSendRequest,
+  auth: string
+) => {
   const { data, error } = await useFetch<server.ChatSendResponse>(
     `${useRuntimeConfig().public.serverPort}/chat/send`,
     {

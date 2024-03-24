@@ -1,53 +1,23 @@
 <script setup lang="ts">
-import { useCookie } from "nuxt/app";
-import type server from "../server/types";
+import type server from "../utils/server";
 import type { Message } from "../utils/types/Message";
-import { chatListOwn } from "../server/chatListOwn";
-import { chatSend } from "../server/chatSend";
-import { tts } from "../server/tts";
 
 const sessionToken = useCookie("aiverb-session");
 const userInput = ref("");
 const user = useState<server.UserResponseData | null>("user");
-const messages = ref<Message[]>([
-  {
-    from: "user",
-    message: "Say something in Japanese with some english words in it.",
-  },
-  {
-    from: "ai",
-    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
-  },
-  {
-    from: "user",
-    message: "Amazing, can you do one more?",
-  },
-  {
-    from: "ai",
-    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
-  },
-  {
-    from: "user",
-    message: "Say something in Japanese with some english words in it.",
-  },
-  {
-    from: "ai",
-    message: `Sure, here's a sentence mixing Japanese and English:\n\n"今日は、Tokyo でランチを食べた。It was delicious!"\n\nThis means "Today, I had lunch in Tokyo. It was delicious!"`,
-  },
-  {
-    from: "user",
-    message: "Amazing, can you do one more?",
-  },
-  {
-    from: "ai",
-    message: `Of course! Here's another mixed sentence:\n\n"昨日、私はshopping を楽しんだ after work."\n\nThis means "Yesterday, I enjoyed shopping after work."`,
-  },
-]);
+const messages = ref<Message[]>([]);
 const error = ref<string>("");
 const audio = ref<HTMLAudioElement | null>(null);
 const isFetching = ref<boolean>(false);
 const isTyping = ref<boolean>(false);
 const isSpeaking = ref<boolean>(false);
+
+const { data: useListChatData, error: useListChatError } = await useListChat(
+  {},
+  sessionToken.value ?? ""
+);
+
+// getMessages();
 
 function reset(): void {
   messages.value = [];
@@ -56,48 +26,34 @@ function reset(): void {
   audio.value = null;
   isTyping.value = false;
   isSpeaking.value = false;
+  isFetching.value = false;
 }
 
-async function getChat(): Promise<void> {
-  if (!sessionToken.value) {
-    error.value = "Session token not found. You are an invalid user.";
-    return;
-  }
+getMessages();
+
+function getMessages() {
+  if (!useListChatData.value?.messages.length || isFetching.value) return;
 
   isFetching.value = true;
 
-  try {
-    const { data, error: err } = await chatListOwn({}, sessionToken.value);
-
-    if (err.value || !data.value) {
-      error.value =
-        "Error fetching chat messages. Refresh the page and try again.";
-      return;
-    }
-
-    (data.value.messages as server.ChatResponseData[]).forEach((message) => {
+  (useListChatData.value.messages as server.ChatResponseData[]).forEach(
+    (message) => {
       messages.value = [
         ...messages.value,
         { from: "user", message: message.userMessage },
         { from: "ai", message: message.aiMessage },
       ];
-    });
+    }
+  );
 
-    isFetching.value = false;
-  } catch (e) {
-    error.value =
-      "Error fetching chat messages. Refresh the page and try again.";
-
-    isFetching.value = false;
-  }
+  isFetching.value = false;
 }
 
-getChat();
-
 async function sendMessage(
-  options: { voice: boolean } = { voice: false }
+  options: { voice: boolean } = { voice: true }
 ): Promise<void> {
-  if (userInput.value || isTyping.value) return;
+  if (!userInput.value || isTyping.value) return;
+
   if (!sessionToken.value) {
     error.value = "Session token not found. You are an invalid user.";
     return;
@@ -112,10 +68,17 @@ async function sendMessage(
 
   userInput.value = "";
 
+  messages.value.push({
+    from: "ai",
+    message: "",
+  });
+
   isTyping.value = true;
 
+  window.scrollTo(0, document.body.scrollHeight);
+
   try {
-    const { data: chatSendData, error: chatSendError } = await chatSend(
+    const { data: chatSendData, error: chatSendError } = await useSendChat(
       { userMessage },
       sessionToken.value
     );
@@ -125,15 +88,13 @@ async function sendMessage(
       return;
     }
 
-    const aiMessage: Message = {
-      from: "ai",
-      message: chatSendData.value.aiMessage,
-    };
+    messages.value[messages.value.length - 1].message =
+      chatSendData.value.aiMessage;
 
-    messages.value.push(aiMessage);
+    window.scrollTo(0, document.body.scrollHeight);
 
     if (options.voice) {
-      speak(aiMessage.message);
+      // speak(aiMessage.message);
     }
 
     isTyping.value = false;
@@ -154,7 +115,7 @@ async function speak(message: string) {
   isSpeaking.value = true;
 
   try {
-    const { data: ttsData, error: ttsError } = await tts(
+    const { data: ttsData, error: ttsError } = await useTTS(
       { text: message },
       sessionToken.value
     );
@@ -190,14 +151,16 @@ async function speak(message: string) {
 async function transcribeRecording(data: BlobPart[]) {
   const audioBlob = new Blob(data, { type: "audio/wav" });
 
-  console.log(audioBlob);
+  // console.log(audioBlob);
 
   //TODO: STT
 
   // sendMessage({ voice: true });
 }
 
-onMounted(() => {
+watch(useListChatData, getMessages);
+
+onMounted(async () => {
   window.scrollTo(0, document.body.scrollHeight);
 });
 
@@ -209,8 +172,8 @@ onUnmounted(reset);
     <Sidebar />
     <UContainer class="max-w-screen-sm mx-auto relative h-screen max-h-screen">
       <div
-        class="flex flex-col justify-end min-h-screen py-20"
-        v-if="messages.length"
+        class="flex flex-col justify-end min-h-screen pt-8 py-32"
+        v-if="messages.length > 0"
       >
         <template v-for="(message, index) of messages" :key="index">
           <div class="flex gap-4 mb-8">
@@ -254,15 +217,24 @@ onUnmounted(reset);
                 </div>
               </div>
               <p v-else class="font-bold">You</p>
-              <p>
+              <p
+                v-if="
+                  index < messages.length ||
+                  (index > messages.length && !isTyping)
+                "
+              >
                 {{ message.message }}
               </p>
+              <LoadingDots
+                class="ml-4 mt-4"
+                v-if="isTyping && index === messages.length - 1"
+              />
             </div>
           </div>
         </template>
       </div>
     </UContainer>
-    <div class="fixed w-screen bottom-0 left-0 pb-2 md:pb-6">
+    <div class="fixed w-screen bottom-0 left-0 pb-9">
       <UContainer class="max-w-screen-sm mx-auto">
         <UFormGroup name="text" class="mt-3 relative">
           <UInput
@@ -270,8 +242,8 @@ onUnmounted(reset);
             v-model="userInput"
             type="text"
             placeholder="Message sensei.."
-            size="2xl"
-            class="bg-bg-gray-100 rounded-lg py-1"
+            size="xl"
+            class="bg-bg-gray-100 dark:bg-gray-900 dark:bg-opacity-90 rounded-lg py-1"
             :disabled="isTyping"
           >
           </UInput>
@@ -284,7 +256,8 @@ onUnmounted(reset);
             variant="solid"
             color="blue"
             square
-            @click="sendMessage()"
+            @click="sendMessage"
+            @keyup.enter="sendMessage"
             :disabled="isTyping"
           />
 
@@ -298,3 +271,4 @@ onUnmounted(reset);
     </div>
   </div>
 </template>
+../composables/chatListOwn../composables/chatSend../composables/tts
