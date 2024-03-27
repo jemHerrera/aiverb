@@ -144,6 +144,10 @@ async function speak(message: string) {
       );
 
       audio.value = new Audio(window.URL.createObjectURL(blob));
+
+      audio.value.play();
+
+      audioIsPlaying.value = true;
     }
 
     isSpeaking.value = false;
@@ -154,19 +158,36 @@ async function speak(message: string) {
 }
 
 async function transcribeRecording(data: BlobPart[]) {
-  const audioBlob = new Blob(data, { type: "audio/wav" });
+  const base64 = await blobToBase64(data[0] as Blob);
 
-  // console.log(audioBlob);
+  if (!base64) {
+    return;
+    //TODO: Error handling
+  }
 
-  //TODO: STT
+  const text = await useSTT({ speech: base64 }, sessionToken.value ?? "");
 
-  // sendMessage({ voice: true });
+  if (text.error.value?.message || !text.data.value) {
+    console.error("Error in transcribing speech.");
+    //TODO: Improve error handling
+    return;
+  }
+
+  userInput.value = text.data.value.text;
+
+  sendMessage({ voice: true });
 }
 
 watch(useListChatData, getMessages);
 
 onMounted(async () => {
   window.scrollTo(0, document.body.scrollHeight);
+
+  if (audio.value != null) {
+    audio.value.addEventListener("ended", () => {
+      audioIsPlaying.value = false;
+    });
+  }
 });
 
 onUnmounted(reset);
@@ -182,14 +203,14 @@ onUnmounted(reset);
       >
         <template v-for="(message, index) of messages" :key="index">
           <div class="flex gap-4 mb-8">
-            <UAvatar v-if="message.from == 'ai'" alt="J" size="md" />
+            <UAvatar v-if="message.from == 'ai'" alt="先生" size="md" />
             <UAvatar v-else :alt="'You'" size="md" />
             <div>
               <div
                 v-if="message.from == 'ai'"
                 class="font-bold flex gap-2 items-center"
               >
-                <p class="font-bold">J Sensei</p>
+                <p class="font-bold">Sensei</p>
                 <div v-if="audio && index === messages.length - 1">
                   <UButton
                     v-if="!audioIsPlaying"

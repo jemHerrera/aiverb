@@ -21,3 +21,7 @@ export {
   TextToSpeechRequest,
   TextToSpeechResponse,
 } from "./controllers/textToSpeech";
+export {
+  SpeechToTextRequest,
+  SpeechToTextResponse,
+} from "./controllers/speechToText";
