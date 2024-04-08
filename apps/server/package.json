@@ -4,11 +4,11 @@
   "description": "A language model for language learning.",
   "main": "index.js",
   "scripts": {
-    "dev": "docker compose up -d && ts-node-dev --poll src/index.ts",
+    "dev": "ts-node-dev --poll src/index.ts",
     "build": "rimraf ./dist && tsc",
-    "start": "npm run build && node dist/index.js",
+    "start": "docker-compose up -d",
     "create-migration": "ts-node src/db/createMigration.ts",
-    "migrate": "ts-node src/db/migrate.ts"
+    "migrate": "ts-node src/db/migrate.ts && npm run dev"
   },
   "keywords": [],
   "author": "",

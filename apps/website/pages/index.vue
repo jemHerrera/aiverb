@@ -196,7 +196,9 @@ onUnmounted(reset);
 <template>
   <div class="flex">
     <Sidebar />
-    <UContainer class="max-w-screen-sm mx-auto relative h-screen max-h-screen">
+    <UContainer
+      class="max-w-screen-sm mx-auto relative h-screen max-h-screen w-full"
+    >
       <div
         class="flex flex-col justify-end min-h-screen pt-8 py-32"
         v-if="messages.length > 0"
