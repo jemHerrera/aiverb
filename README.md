@@ -12,6 +12,21 @@ Typescript - Express - PostgreSQL - Nuxt
 4. Run `pnpm i` on the root directory. Ths will install all dependencies across all sub-applications.
 5. Add environment variables
 
+   `/apps/website/.env`
+   NODE_ENV=development
+   SERVER_PORT=http://localhost:4000
+
+   `/apps/server/.env`
+   NODE_ENV=development
+   SERVER_PORT=http://localhost:4000
+   DB_USER='postgres'
+   DB_HOST='localhost'
+   DB_NAME='postgres'
+   DB_PASSWORD='password'
+   DB_PORT=5432
+   USER_JWT_PRIVATE_KEY={{ an unused uuid }}
+   OPENAI_API_KEY={{ your api key }}
+
 ## gcloud Authentication
 
 1. Install Google Cloud CLI
@@ -20,17 +35,9 @@ Typescript - Express - PostgreSQL - Nuxt
 
 ## Running servers locally
 
-1. Run `pnpm dev`
+1. Setup docker containers `pnpm api start`
 
-- postgres - localhost:5432
-- pgAdmin - localhost:5002
-- api server - localhost:4000
-- nuxt server - localhost:3000
-
-This automatically creates the postgres db and pgAdmin docker containers
-
-2. Create migration files `pnpm create-migration`
-3. Run migration `pnpm migrate`
+2. Run servers `pnpm dev`
 
 ## Running app specific scripts
 
@@ -56,5 +63,3 @@ With pnpm, scripts from inside each sub-applications can be ran from the root di
 5. Create a new route file in `apps/server/src/router`, or add to the existing routes. If a new route is created, add it to `apps/server/src/router/index.ts`
 
 ## Todo
-
-1. Explore LLM

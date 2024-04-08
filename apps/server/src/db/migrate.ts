@@ -4,8 +4,10 @@ import mikroOrmConfig from "./_config/mikroOrmConfig";
 import { SeedProducts } from "./seeders/SeedProducts";
 import { seedMemory } from "./seeders/SeedMemory";
 import { User } from "./entities";
+import { waitForDB } from "./waitForDB";
 
 export async function handler() {
+  console.log(mikroOrmConfig);
   try {
     const orm = await MikroORM.init(mikroOrmConfig);
 
@@ -38,4 +40,9 @@ export async function handler() {
   }
 }
 
-handler();
+waitForDB(
+  mikroOrmConfig.host || "localhost",
+  mikroOrmConfig.port ?? 5432,
+  16,
+  handler
+);

@@ -1,7 +1,7 @@
 {
   "Servers": {
     "1": {
-      "Name": "development-db",
+      "Name": "api-db",
       "Group": "Servers",
       "Host": "db",
       "Port": 5432,
