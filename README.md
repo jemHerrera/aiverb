@@ -1,4 +1,4 @@
-# Aiverb
+# Bengo
 
 A Language model for language learning. Currently supports Japanese language for English speaking learners.
 
