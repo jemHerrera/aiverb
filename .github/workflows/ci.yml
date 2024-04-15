@@ -22,14 +22,10 @@ jobs:
         id: build-image
         uses: redhat-actions/buildah-build@v2
         with:
-          image: myuser/myimage
+          image: bengo-api-server
           tags: latest
           dockerfiles: |
             ./apps/server/Dockerfile
 
       - name: Push Image to Docker Hub
-        uses: redhat-actions/push-to-registry@v2
-        with:
-          image: ${{ steps.build-image.outputs.image }}
-          tags: ${{ steps.build-image.outputs.tags }}
-          registry: docker.io
+        run: docker push blairebabel/bengo-api-server:latest
