@@ -61,5 +61,3 @@ With pnpm, scripts from inside each sub-applications can be ran from the root di
 3. This setup uses [zod](https://zod.dev/) to create typed validation schemas.
 4. Export the request and response types in `apps/server/src/types`
 5. Create a new route file in `apps/server/src/router`, or add to the existing routes. If a new route is created, add it to `apps/server/src/router/index.ts`
-
-## Todo
