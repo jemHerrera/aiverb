@@ -19,7 +19,7 @@ jobs:
         run: docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
       - name: Build the API Server Docker image
         working-directory: "./apps/server"
-        run: docker build -t server-app:latest .
+        run: docker build -t bengo-api-server:latest .
       - name: Push to Dockerhub
         working-directory: "./apps/server"
-        run: docker push blairebabel/server-app:latest
+        run: docker push blairebabel/bengo-api-server:latest
