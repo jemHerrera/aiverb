@@ -18,7 +18,6 @@ Typescript - Express - PostgreSQL - Nuxt
 
    `/apps/server/.env`
    NODE_ENV=development
-   SERVER_PORT=http://localhost:4000
    DB_USER='postgres'
    DB_HOST='localhost'
    DB_NAME='postgres'
