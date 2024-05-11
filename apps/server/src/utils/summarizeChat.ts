@@ -2,7 +2,7 @@ import { ChatPromptTemplate } from "@langchain/core/prompts";
 import { Chat } from "../db/entities";
 import { SystemMessage } from "@langchain/core/messages";
 import { StringOutputParser } from "@langchain/core/output_parsers";
-import { ChatOpenAI } from "langchain/chat_models/openai";
+import { ChatOpenAI } from "@langchain/openai";
 
 export const summarizeChat = async (
   chat: Chat,

@@ -1,5 +1,5 @@
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { PGVectorStore } from "langchain/vectorstores/pgvector";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 
 const config = {
   postgresConnectionOptions: {

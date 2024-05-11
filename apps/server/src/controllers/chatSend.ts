@@ -9,8 +9,8 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
-import { ChatOpenAI } from "langchain/chat_models/openai";
-import { kaori, kaoriStyle } from "../utils/aiPrompts/kaori";
+import { ChatOpenAI } from "@langchain/openai";
+import { kaori } from "../utils/aiPrompts/kaori";
 import { AIMessage, HumanMessage } from "@langchain/core/messages";
 import { createHistoryAwareRetriever } from "langchain/chains/history_aware_retriever";
 import { createStuffDocumentsChain } from "langchain/chains/combine_documents";
@@ -49,8 +49,8 @@ export const chatSend = async (
 
     const chatsCount = await em.count(Chat, { user: id });
 
-    const HISTORY_SIZE = 3;
-    const SUMMARIZE_INTERVAL = 1;
+    const HISTORY_SIZE = 10;
+    // const SUMMARIZE_INTERVAL = 1;
 
     // Get the last x chats + current chat and use this to retrieve y number of relevant documents
     const previousChats = await em.find(
@@ -65,6 +65,7 @@ export const chatSend = async (
 
     const vectorStore = await useVectorStore();
     const outputParser = new StringOutputParser();
+
     const chatModel = new ChatOpenAI({
       openAIApiKey: process.env.OPENAI_API_KEY,
     });
