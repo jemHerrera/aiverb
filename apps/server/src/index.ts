@@ -8,6 +8,8 @@ import mikroOrmConfig from "./db/_config/mikroOrmConfig";
 import { MikroORM, RequestContext, EntityManager } from "@mikro-orm/core";
 import router from "./router";
 
+import { handler as dbInit } from "./db/migrate";
+
 export const DI = {} as {
   server: http.Server;
   orm: MikroORM;
@@ -20,6 +22,8 @@ const port = process.env.PORT || 4000;
 export const init = (async () => {
   DI.orm = await MikroORM.init(mikroOrmConfig);
   DI.em = DI.orm.em;
+
+  await dbInit();
 
   app.use(cors());
   app.use(compression());
