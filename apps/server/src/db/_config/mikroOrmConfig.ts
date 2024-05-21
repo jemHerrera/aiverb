@@ -11,6 +11,11 @@ const mikroOrmConfig: Options<PostgreSqlDriver> = {
   password: process.env.DB_PASSWORD || "password",
   host: process.env.DB_HOST || "localhost",
   port: Number(process.env.DB_PORT) || 5432,
+  driverOptions: {
+    ...(process.env.NODE_ENV === "production" && {
+      connection: { ssl: { rejectUnauthorized: false } },
+    }),
+  },
   migrations: {
     pathTs: "src/db/migrations",
   },

@@ -12,6 +12,15 @@ services:
     volumes:
       - db-volume:/var/lib/postgresql/data
 
+  app:
+    build: .
+    environment:
+      - DB_HOST=db
+    depends_on:
+      - db
+    ports:
+      - 4000:4000
+
   pgadmin:
     image: dpage/pgadmin4:2023-09-20-2
     environment:
@@ -21,6 +30,5 @@ services:
       - ./pgadmin-servers.json:/pgadmin4/servers.json
     ports:
       - 5002:80
-
 volumes:
   db-volume:

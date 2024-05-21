@@ -6,7 +6,6 @@ import argon2 from "argon2";
 
 import { Product } from "../db/entities/Product";
 import { UserResponseData } from "../types";
-import { seedMemory } from "../db/seeders/SeedMemory";
 
 export const UserCreateRequest = z
   .object({
@@ -46,8 +45,6 @@ export const userCreate = async (
       username,
       product: defaultProduct,
     });
-
-    seedMemory(user.id);
 
     await em.flush();
 

@@ -1,13 +1,11 @@
 import { MikroORM } from "@mikro-orm/core";
 
 import mikroOrmConfig from "./_config/mikroOrmConfig";
+
 import { SeedProducts } from "./seeders/SeedProducts";
-import { seedMemory } from "./seeders/SeedMemory";
-import { User } from "./entities";
 import { waitForDB } from "./waitForDB";
 
 export async function handler() {
-  console.log(mikroOrmConfig);
   try {
     const orm = await MikroORM.init(mikroOrmConfig);
 
@@ -18,13 +16,6 @@ export async function handler() {
     await migrator.up();
 
     new SeedProducts().run(em);
-
-    const users = await em.find(User, {});
-
-    for (const user of users) {
-      await seedMemory(user.id);
-      console.log(`Seeded memory for user ${user.id}.`);
-    }
 
     await orm.close(true);
 
